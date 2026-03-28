@@ -1,6 +1,6 @@
 {
-  "installCommand": "cd Aesthetic-Vision && pnpm install --no-frozen-lockfile",
-  "buildCommand": "cd Aesthetic-Vision && pnpm --filter @workspace/tideguard run build",
+  "installCommand": "cd Aesthetic-Vision && npx --yes pnpm@10 install --no-frozen-lockfile --ignore-scripts",
+  "buildCommand": "cd Aesthetic-Vision && npx --yes pnpm@10 --filter @workspace/tideguard run build",
   "outputDirectory": "Aesthetic-Vision/artifacts/tideguard/dist/public",
   "framework": "vite"
 }
