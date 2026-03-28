@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Wind, Newspaper, MessageSquare, X, ExternalLink, ChevronRight, ChevronDown } from "lucide-react";
+import { Wind, Newspaper, MessageSquare, X, ExternalLink, ChevronRight, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
@@ -62,10 +62,14 @@ function ContentIQWidget({
   selectedArticle,
   fwcLevel,
   wind,
+  isFullscreen,
+  onToggleFullscreen,
 }: {
   selectedArticle: NewsArticle | null;
   fwcLevel: AbundanceLevel;
   wind: WindData | null;
+  isFullscreen: boolean;
+  onToggleFullscreen: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [contextExpanded, setContextExpanded] = useState(false);
@@ -81,23 +85,24 @@ function ContentIQWidget({
   return (
     <div ref={containerRef} className="flex-1 flex flex-col min-h-0">
       {/* Widget label */}
-      <div className="flex items-center justify-between px-4 pb-2">
+      <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="flex items-center gap-2">
           <MessageSquare size={12} className="text-muted-foreground" />
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
-            ContentIQ · IBM watsonx
+            AI Chat
           </span>
         </div>
-        <div
-          className="text-[9px] font-semibold px-1.5 py-0.5 rounded tracking-wider"
-          style={{
-            background: "rgba(0,196,228,0.1)",
-            border: "1px solid rgba(0,196,228,0.2)",
-            color: "hsl(191 90% 46%)",
-          }}
+        <button
+          onClick={onToggleFullscreen}
+          className="p-1 hover:bg-white/10 rounded transition-colors"
+          title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
         >
-          AI AGENT
-        </div>
+          {isFullscreen ? (
+            <Minimize2 size={14} className="text-muted-foreground" />
+          ) : (
+            <Maximize2 size={14} className="text-muted-foreground" />
+          )}
+        </button>
       </div>
 
       {/* Context Summary Panel - Collapsible */}
@@ -187,7 +192,7 @@ function ContentIQWidget({
           style={{
             width: "100%",
             height: "100%",
-            minHeight: 500,
+            minHeight: isFullscreen ? "calc(100vh - 80px)" : 500,
             border: "none",
             borderRadius: 12,
             backgroundColor: "rgba(255,255,255,0.02)"
@@ -220,6 +225,7 @@ export default function AnalysisSidebar({
   dataTimestamp,
 }: SidebarProps) {
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
+  const [isFullscreen, setFullscreen] = useState(false);
 
   const riskColor = {
     high: "#ef4444",
@@ -239,78 +245,13 @@ export default function AnalysisSidebar({
           borderLeft: "1px solid rgba(255,255,255, 0.07)",
         }}
       >
-        {/* Header */}
-        <div
-          className="flex-shrink-0 px-5 pt-5 pb-4"
-          style={{ borderBottom: "1px solid rgba(255,255,255, 0.06)" }}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <div className="text-[10px] font-bold tracking-widest text-primary uppercase">
-                  wxO / Symplistic
-                </div>
-                <div
-                  className="text-[9px] font-semibold px-1.5 py-0.5 rounded tracking-wider"
-                  style={{
-                    background: "rgba(0,196,228,0.1)",
-                    border: "1px solid rgba(0,196,228,0.2)",
-                    color: "hsl(191 90% 46%)",
-                  }}
-                >
-                  LIVE
-                </div>
-              </div>
-              <div className="text-sm font-semibold text-foreground leading-tight">
-                Threat Analysis
-              </div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">
-                ContentIQ · IBM watsonx Agent
-              </div>
+        {/* Articles Feed - Hidden in fullscreen */}
+        {!isFullscreen && (
+          <>
+            {/* Wind */}
+            <div className="flex-shrink-0 pt-3">
+              <WindRow wind={wind} />
             </div>
-            <div className="flex-shrink-0 text-right">
-              <div
-                className="w-3 h-3 rounded-full ml-auto mb-1"
-                style={{ background: riskColor, boxShadow: `0 0 12px ${riskColor}` }}
-              />
-              <div
-                className="text-mono text-[10px]"
-                style={{ color: riskColor, letterSpacing: "0.08em" }}
-              >
-                {fwcLevel.replace("_", " ").toUpperCase()}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            {[
-              { label: "Bloom Level", value: fwcLevel.replace("_", " "), color: riskColor },
-              { label: "Wind", value: wind ? `${wind.directionLabel} ${wind.speed}` : "—", color: "hsl(210 30% 75%)" },
-              { label: "Updated", value: dataTimestamp || "Just now", color: "hsl(210 18% 50%)" },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl p-2.5 text-center"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
-              >
-                <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1">
-                  {item.label}
-                </div>
-                <div
-                  className="text-mono text-[11px] font-semibold capitalize"
-                  style={{ color: item.color }}
-                >
-                  {item.value}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Wind */}
-        <div className="flex-shrink-0 pt-3">
-          <WindRow wind={wind} />
-        </div>
 
         {/* News feed — compact, non-scrolling */}
         <div
@@ -416,27 +357,33 @@ export default function AnalysisSidebar({
             </div>
           )}
         </div>
+          </>
+        )}
 
         {/* ContentIQ Chat Widget — fills remaining space */}
         <ContentIQWidget
           selectedArticle={selectedArticle}
           fwcLevel={fwcLevel}
           wind={wind}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={() => setFullscreen(!isFullscreen)}
         />
 
-        {/* Footer */}
-        <div
-          className="flex-shrink-0 px-4 py-2.5 flex items-center justify-between"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
-        >
-          <div className="text-[10px] text-muted-foreground font-mono">
-            FWC · Open-Meteo · NewsAPI
+        {/* Footer - Hidden in fullscreen */}
+        {!isFullscreen && (
+          <div
+            className="flex-shrink-0 px-4 py-2.5 flex items-center justify-between"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+          >
+            <div className="text-[10px] text-muted-foreground font-mono">
+              FWC · Open-Meteo · NewsAPI
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
+              <span className="text-[10px] text-muted-foreground">Live</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
-            <span className="text-[10px] text-muted-foreground">Live</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
