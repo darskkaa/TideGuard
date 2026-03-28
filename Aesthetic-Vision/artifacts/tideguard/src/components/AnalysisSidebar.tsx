@@ -107,46 +107,46 @@ function ContentIQWidget({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="px-4 pb-2 overflow-hidden"
+            className="flex-shrink-0 px-4 pb-2 max-h-40 overflow-y-auto"
           >
             <div
-              className="rounded-xl p-3 space-y-2.5"
+              className="rounded-xl p-2.5 space-y-2"
               style={{
                 background: "rgba(0,196,228,0.06)",
                 border: "1px solid rgba(0,196,228,0.18)",
               }}
             >
               <div>
-                <div className="text-[10px] font-semibold text-primary uppercase tracking-widest mb-1">
+                <div className="text-[9px] font-semibold text-primary uppercase tracking-widest mb-0.5">
                   Selected Article
                 </div>
-                <div className="text-[11px] text-foreground font-medium leading-snug">
+                <div className="text-[10px] text-foreground font-medium leading-snug line-clamp-2">
                   {selectedArticle.title}
                 </div>
-                <div className="text-[10px] text-muted-foreground mt-1">
+                <div className="text-[9px] text-muted-foreground mt-0.5">
                   {selectedArticle.source} · {timeAgo(selectedArticle.publishedAt)}
                 </div>
               </div>
 
-              <div className="pt-1.5 border-t border-white/10 space-y-1.5">
-                <div className="grid grid-cols-2 gap-2">
+              <div className="pt-1 border-t border-white/10 space-y-1">
+                <div className="grid grid-cols-2 gap-1.5">
                   <div>
-                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest">Bloom Level</div>
-                    <div className="text-[11px] font-semibold text-white">{fwcLevel.replace("_", " ")}</div>
+                    <div className="text-[8px] text-muted-foreground uppercase tracking-widest">Bloom</div>
+                    <div className="text-[10px] font-semibold text-white">{fwcLevel.replace("_", " ")}</div>
                   </div>
                   <div>
-                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest">Wind</div>
-                    <div className="text-[11px] font-semibold text-white">{wind ? `${wind.directionLabel} ${wind.speed}` : "—"}</div>
+                    <div className="text-[8px] text-muted-foreground uppercase tracking-widest">Wind</div>
+                    <div className="text-[10px] font-semibold text-white">{wind ? `${wind.directionLabel} ${wind.speed}` : "—"}</div>
                   </div>
                 </div>
 
-                <div className="pt-1.5">
-                  <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1">Suggested Prompt</div>
-                  <div className="text-[10px] text-white/80 bg-white/5 rounded p-2 max-h-24 overflow-y-auto font-mono leading-snug">
+                <div className="pt-1">
+                  <div className="text-[8px] text-muted-foreground uppercase tracking-widest mb-0.5">Prompt</div>
+                  <div className="text-[9px] text-white/75 bg-white/5 rounded p-1.5 max-h-16 overflow-y-auto font-mono leading-tight">
                     {suggestedPrompt}
                   </div>
-                  <div className="text-[9px] text-muted-foreground/70 mt-1.5 italic">
-                    💡 Copy the prompt above and paste it into the chat below
+                  <div className="text-[8px] text-muted-foreground/60 mt-1 italic">
+                    💡 Copy &amp; paste into chat
                   </div>
                 </div>
               </div>
