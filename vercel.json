@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd Aesthetic-Vision && npm install && npm run build",
+  "buildCommand": "cd Aesthetic-Vision && pnpm run build",
   "outputDirectory": "Aesthetic-Vision/artifacts/tideguard/dist",
-  "installCommand": "npm install",
+  "installCommand": "pnpm install --frozen-lockfile",
   "framework": "vite"
 }

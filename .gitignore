@@ -9,7 +9,6 @@
 
 # Dependencies
 node_modules
-pnpm-lock.yaml
 
 # Build output
 dist
@@ -26,3 +25,7 @@ Thumbs.db
 *.swo
 
 .vercel
+
+# Environment files
+.env.production
+.env.*.local
