@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Wind, Newspaper, MessageSquare, X, ExternalLink, ChevronRight } from "lucide-react";
+import { Wind, Newspaper, MessageSquare, X, ExternalLink, ChevronRight, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
@@ -68,6 +68,7 @@ function ContentIQWidget({
   wind: WindData | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [contextExpanded, setContextExpanded] = useState(false);
 
   const windContext = wind
     ? `Wind: ${wind.directionLabel} at ${wind.speed} km/h (${wind.isOnshore ? "ONSHORE — toxins moving toward coast" : "OFFSHORE — dispersing away"})`
@@ -99,7 +100,7 @@ function ContentIQWidget({
         </div>
       </div>
 
-      {/* Context Summary Panel */}
+      {/* Context Summary Panel - Collapsible */}
       <AnimatePresence>
         {selectedArticle && (
           <motion.div
@@ -107,59 +108,90 @@ function ContentIQWidget({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex-shrink-0 px-4 pb-2 max-h-40 overflow-y-auto"
+            className="flex-shrink-0"
           >
-            <div
-              className="rounded-xl p-2.5 space-y-2"
-              style={{
-                background: "rgba(0,196,228,0.06)",
-                border: "1px solid rgba(0,196,228,0.18)",
-              }}
+            <button
+              onClick={() => setContextExpanded(!contextExpanded)}
+              className="w-full px-4 py-2 flex items-center justify-between hover:bg-white/5 transition-colors"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
             >
-              <div>
-                <div className="text-[9px] font-semibold text-primary uppercase tracking-widest mb-0.5">
-                  Selected Article
-                </div>
-                <div className="text-[10px] text-foreground font-medium leading-snug line-clamp-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-semibold text-primary uppercase tracking-widest">
+                  Article Context
+                </span>
+                <span className="text-[8px] text-muted-foreground truncate max-w-24">
                   {selectedArticle.title}
-                </div>
-                <div className="text-[9px] text-muted-foreground mt-0.5">
-                  {selectedArticle.source} · {timeAgo(selectedArticle.publishedAt)}
-                </div>
+                </span>
               </div>
+              <ChevronDown
+                size={14}
+                className="flex-shrink-0 transition-transform"
+                style={{ transform: contextExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+              />
+            </button>
 
-              <div className="pt-1 border-t border-white/10 space-y-1">
-                <div className="grid grid-cols-2 gap-1.5">
+            {contextExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.15 }}
+                className="px-4 py-2 max-h-48 overflow-y-auto"
+              >
+                <div className="space-y-2">
                   <div>
-                    <div className="text-[8px] text-muted-foreground uppercase tracking-widest">Bloom</div>
-                    <div className="text-[10px] font-semibold text-white">{fwcLevel.replace("_", " ")}</div>
+                    <div className="text-[8px] font-semibold text-primary uppercase tracking-widest mb-0.5">
+                      Selected Article
+                    </div>
+                    <div className="text-[9px] text-foreground font-medium leading-snug">
+                      {selectedArticle.title}
+                    </div>
+                    <div className="text-[8px] text-muted-foreground mt-0.5">
+                      {selectedArticle.source} · {timeAgo(selectedArticle.publishedAt)}
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-[8px] text-muted-foreground uppercase tracking-widest">Wind</div>
-                    <div className="text-[10px] font-semibold text-white">{wind ? `${wind.directionLabel} ${wind.speed}` : "—"}</div>
+
+                  <div className="pt-1 border-t border-white/10 space-y-1">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <div>
+                        <div className="text-[7px] text-muted-foreground uppercase tracking-widest">Bloom</div>
+                        <div className="text-[9px] font-semibold text-white">{fwcLevel.replace("_", " ")}</div>
+                      </div>
+                      <div>
+                        <div className="text-[7px] text-muted-foreground uppercase tracking-widest">Wind</div>
+                        <div className="text-[9px] font-semibold text-white">{wind ? `${wind.directionLabel} ${wind.speed}` : "—"}</div>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <div className="text-[7px] text-muted-foreground uppercase tracking-widest mb-0.5">Suggested Prompt</div>
+                      <div className="text-[8px] text-white/75 bg-white/5 rounded p-1 max-h-20 overflow-y-auto font-mono leading-tight">
+                        {suggestedPrompt}
+                      </div>
+                      <div className="text-[7px] text-muted-foreground/60 mt-0.5 italic">
+                        💡 Copy &amp; paste below
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                <div className="pt-1">
-                  <div className="text-[8px] text-muted-foreground uppercase tracking-widest mb-0.5">Prompt</div>
-                  <div className="text-[9px] text-white/75 bg-white/5 rounded p-1.5 max-h-16 overflow-y-auto font-mono leading-tight">
-                    {suggestedPrompt}
-                  </div>
-                  <div className="text-[8px] text-muted-foreground/60 mt-1 italic">
-                    💡 Copy &amp; paste into chat
-                  </div>
-                </div>
-              </div>
-            </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ContentIQ deployed agent iframe */}
-      <div className="flex-1 px-4 pb-2 min-h-0">
+      {/* ContentIQ deployed agent iframe - LARGE */}
+      <div className="flex-1 px-4 pb-4 min-h-0 flex flex-col">
         <iframe
           src={CONTENTIQ_DEPLOYMENT_URL}
-          style={{ width: "100%", height: "100%", minHeight: 280, border: "none", borderRadius: 12 }}
+          style={{
+            width: "100%",
+            height: "100%",
+            minHeight: 500,
+            border: "none",
+            borderRadius: 12,
+            backgroundColor: "rgba(255,255,255,0.02)"
+          }}
           allow="microphone"
           title="TideGuard AI Agent"
         />
