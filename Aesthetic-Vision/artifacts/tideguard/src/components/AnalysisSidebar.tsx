@@ -357,7 +357,7 @@ export default function AnalysisSidebar({
             </div>
           ) : (
             <div className="space-y-1.5">
-              {articles.slice(0, 3).map((article) => {
+              {articles.slice(0, 5).map((article) => {
                 const isSelected = selectedArticle?.id === article.id;
                 return (
                   <motion.button
