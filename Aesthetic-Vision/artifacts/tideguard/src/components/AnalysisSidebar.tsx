@@ -69,22 +69,6 @@ function ContentIQWidget({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const injectedRef = useRef<string | null>(null);
-  const scriptLoadedRef = useRef(false);
-
-  useEffect(() => {
-    if (scriptLoadedRef.current) return;
-    scriptLoadedRef.current = true;
-
-    const script = document.createElement("script");
-    script.src = "https://partners.contentiq.symplistic.ai/external/embed/chat.js";
-    script.setAttribute("data-chat-id", "7d13ad4b-3e94-4651-a50e-e7d03232f7b9");
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      if (document.body.contains(script)) document.body.removeChild(script);
-    };
-  }, []);
 
   const injectContext = useCallback((article: NewsArticle) => {
     if (injectedRef.current === article.id) return;
@@ -195,32 +179,14 @@ function ContentIQWidget({
         )}
       </AnimatePresence>
 
-      {/* ContentIQ widget anchor — script renders the chat UI here */}
-      <div className="flex-1 px-4 pb-2 min-h-0 flex flex-col gap-2">
-        <div
-          className="contentiq_symplisticai_chat"
-          data-agent={WIDGET_AGENT}
-          data-token={WIDGET_TOKEN}
-          data-backend={WIDGET_BACKEND}
-          data-api-key={WIDGET_CONTEXT_KEY}
-          style={{ flex: 1, minHeight: 0 }}
+      {/* ContentIQ deployed agent iframe */}
+      <div className="flex-1 px-4 pb-2 min-h-0">
+        <iframe
+          src={CONTENTIQ_DEPLOYMENT_URL}
+          style={{ width: "100%", height: "100%", minHeight: 320, border: "none", borderRadius: 12 }}
+          allow="microphone"
+          title="TideGuard AI Agent"
         />
-        {/* Fallback prompt shown until widget renders inline */}
-        <div
-          className="rounded-xl p-3 text-center"
-          style={{
-            background: "rgba(0,196,228,0.04)",
-            border: "1px solid rgba(0,196,228,0.1)",
-          }}
-        >
-          <MessageSquare size={16} className="mx-auto mb-2" style={{ color: "hsl(191 90% 46%)" }} />
-          <div className="text-[11px] font-medium text-foreground mb-1">
-            IBM watsonx Agent ready
-          </div>
-          <div className="text-[10px] text-muted-foreground leading-relaxed">
-            Click the chat icon to open the ContentIQ AI agent. Select an article above to pre-load threat context.
-          </div>
-        </div>
       </div>
     </div>
   );
