@@ -68,60 +68,14 @@ function ContentIQWidget({
   wind: WindData | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const injectedRef = useRef<string | null>(null);
 
-  const injectContext = useCallback((article: NewsArticle) => {
-    if (injectedRef.current === article.id) return;
+  const windContext = wind
+    ? `Wind: ${wind.directionLabel} at ${wind.speed} km/h (${wind.isOnshore ? "ONSHORE — toxins moving toward coast" : "OFFSHORE — dispersing away"})`
+    : "Wind: Data unavailable";
 
-    const windContext = wind
-      ? `Wind: ${wind.directionLabel} at ${wind.speed} km/h (${wind.isOnshore ? "ONSHORE — toxins moving toward coast" : "OFFSHORE — dispersing away from shore"}).`
-      : "";
-
-    const prompt =
-      `Analyze this article in the context of TideGuard red tide monitoring for Southwest Florida.\n\n` +
-      `Article: "${article.title}"\n` +
-      `Source: ${article.source}\n` +
-      `Summary: ${article.description || article.content || "(no description)"}\n\n` +
-      `Current conditions: Karenia brevis bloom level is ${fwcLevel.replace("_", " ")}. ${windContext}\n\n` +
-      `What is the business risk for beachfront restaurants and what immediate actions should they take?`;
-
-    const tryInject = () => {
-      const widget = document.querySelector(".contentiq_symplisticai_chat");
-      if (!widget) return false;
-
-      const textarea = widget.querySelector("textarea") as HTMLTextAreaElement | null;
-      const input = widget.querySelector("input[type='text'], input:not([type])") as HTMLInputElement | null;
-      const target = textarea || input;
-
-      if (!target) return false;
-
-      const nativeSetter =
-        target instanceof HTMLTextAreaElement
-          ? Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set
-          : Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
-
-      nativeSetter?.call(target, prompt);
-      target.dispatchEvent(new Event("input", { bubbles: true }));
-      target.dispatchEvent(new Event("change", { bubbles: true }));
-      target.focus();
-
-      injectedRef.current = article.id;
-      return true;
-    };
-
-    let attempts = 0;
-    const interval = setInterval(() => {
-      if (tryInject() || attempts++ > 20) clearInterval(interval);
-    }, 300);
-  }, [fwcLevel, wind]);
-
-  useEffect(() => {
-    if (selectedArticle) {
-      injectContext(selectedArticle);
-    } else {
-      injectedRef.current = null;
-    }
-  }, [selectedArticle, injectContext]);
+  const suggestedPrompt = selectedArticle
+    ? `Analyze "${selectedArticle.title}" (${selectedArticle.source}) in the context of red tide monitoring for Southwest Florida. Current conditions: Bloom level is ${fwcLevel.replace("_", " ")}, ${windContext}. What business risks and actions should coastal restaurants take?`
+    : "";
 
   return (
     <div ref={containerRef} className="flex-1 flex flex-col min-h-0">
@@ -145,7 +99,7 @@ function ContentIQWidget({
         </div>
       </div>
 
-      {/* Selected article context badge */}
+      {/* Context Summary Panel */}
       <AnimatePresence>
         {selectedArticle && (
           <motion.div
@@ -156,23 +110,45 @@ function ContentIQWidget({
             className="px-4 pb-2 overflow-hidden"
           >
             <div
-              className="rounded-xl p-3"
+              className="rounded-xl p-3 space-y-2.5"
               style={{
                 background: "rgba(0,196,228,0.06)",
                 border: "1px solid rgba(0,196,228,0.18)",
               }}
             >
-              <div className="text-[10px] font-semibold text-primary uppercase tracking-widest mb-1">
-                Analyzing Article
+              <div>
+                <div className="text-[10px] font-semibold text-primary uppercase tracking-widest mb-1">
+                  Selected Article
+                </div>
+                <div className="text-[11px] text-foreground font-medium leading-snug">
+                  {selectedArticle.title}
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  {selectedArticle.source} · {timeAgo(selectedArticle.publishedAt)}
+                </div>
               </div>
-              <div className="text-[11px] text-foreground font-medium leading-snug line-clamp-2">
-                {selectedArticle.title}
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-1">
-                {selectedArticle.source} · {timeAgo(selectedArticle.publishedAt)}
-              </div>
-              <div className="text-[10px] text-muted-foreground/70 mt-1.5 italic">
-                Context pre-loaded into chat ↓
+
+              <div className="pt-1.5 border-t border-white/10 space-y-1.5">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest">Bloom Level</div>
+                    <div className="text-[11px] font-semibold text-white">{fwcLevel.replace("_", " ")}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest">Wind</div>
+                    <div className="text-[11px] font-semibold text-white">{wind ? `${wind.directionLabel} ${wind.speed}` : "—"}</div>
+                  </div>
+                </div>
+
+                <div className="pt-1.5">
+                  <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1">Suggested Prompt</div>
+                  <div className="text-[10px] text-white/80 bg-white/5 rounded p-2 max-h-24 overflow-y-auto font-mono leading-snug">
+                    {suggestedPrompt}
+                  </div>
+                  <div className="text-[9px] text-muted-foreground/70 mt-1.5 italic">
+                    💡 Copy the prompt above and paste it into the chat below
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -183,7 +159,7 @@ function ContentIQWidget({
       <div className="flex-1 px-4 pb-2 min-h-0">
         <iframe
           src={CONTENTIQ_DEPLOYMENT_URL}
-          style={{ width: "100%", height: "100%", minHeight: 320, border: "none", borderRadius: 12 }}
+          style={{ width: "100%", height: "100%", minHeight: 280, border: "none", borderRadius: 12 }}
           allow="microphone"
           title="TideGuard AI Agent"
         />
