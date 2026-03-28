@@ -1,0 +1,26 @@
+# Claude Code local files
+.claude/
+.grepai/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build output
+dist
+build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo

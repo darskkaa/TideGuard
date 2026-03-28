@@ -1,0 +1,35 @@
+Project: "TideGuard" - An AI-powered Red Tide mapping and business risk dashboard.
+Tech Stack: Next.js (App Router), Tailwind CSS, shadcn/ui, react-leaflet, Lucide React.
+
+I am participating in a hackathon and need you to build the complete foundation for this project. 
+
+Context: TideGuard pulls live government data about Red Tide (Karenia brevis) and uses an AI agent (orchestrated by IBM watsonx and Symplistic.ai ContentIQ) to parse live unstructured news articles from NewsAPI into actionable business intelligence for local beachfront restaurants. 
+
+Please execute the following requirements:
+
+1. Setup & Map Component (react-leaflet):
+- Create a full-screen interactive map centered on the Longboat Key / Sarasota coast (Lat: 27.3996, Lng: -82.6455) with a zoom level of 10.
+- Use the free CARTO Dark Matter tile layer: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`
+- Write a utility function `lib/fwc-api.ts` to fetch live GeoJSON data from: `https://gis.myfwc.com/mapping/rest/services/Projects_FWC/HAB_forDEP_Dashboard/MapServer/0/query?where=1%3D1&outFields=*&f=geojson`. 
+- Plot these points on the map. Color the markers based on the `Count_` or `Abundance` property (Green for "not present/background", Yellow for "low/medium", Red for "high").
+
+2. Live Wind Data (Open-Meteo):
+- Create a function to fetch live wind speed and direction from the free Open-Meteo API for the map's center coordinates: `https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&current_weather=true`.
+
+3. The NewsAPI & AI Agent Dashboard (Right Sidebar):
+- Create a fixed right sidebar named "wxO / Symplistic Threat Analysis".
+- Create a server action or API route to fetch articles from NewsAPI (`https://newsapi.org/v2/everything?q="red tide" AND Florida&sortBy=publishedAt&apiKey=YOUR_NEWS_API_KEY`). 
+- Display the top 3 most recent news articles as clickable cards in the sidebar.
+- When an article card is clicked, populate a "Run ContentIQ Analysis" section. 
+- Build a mock loading state that simulates IBM watsonx sending the article text to Symplistic ContentIQ.
+- Display a structured output card showing the extracted data: Location, Detected Symptoms, and a "Business Risk Recommendation" (Logic: If FWC data is Red/High AND wind direction is blowing onshore, output "CRITICAL RISK: Close outdoor patio").
+
+4. The Audio Briefing Component (ElevenLabs):
+- Add a "Play Audio Briefing" button with a volume icon on the analysis card.
+- Create a Next.js API route (`/api/tts`) that makes a POST request to the ElevenLabs TTS API (`https://api.elevenlabs.io/v1/text-to-speech/{voice_id}`) passing the Business Risk Recommendation text, and returns the audio buffer to be played by the browser.
+
+5. Project Setup:
+- Scaffold the UI cleanly using shadcn/ui components (Cards, Buttons, Badges, ScrollArea).
+- Generate a `.env.example` file including placeholders for `NEWS_API_KEY`, `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `SYMPLISTIC_USERNAME`, and `SYMPLISTIC_PASSWORD`. 
+
+Do not ask me for confirmation, just write the code, install the necessary dependencies (leaflet, react-leaflet, lucide-react, etc.), and scaffold the project.

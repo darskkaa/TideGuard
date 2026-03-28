@@ -1,0 +1,427 @@
+ContentIQ Documentation
+ContentIQ — Release Notes & API Reference
+External documentation for developers and operators. Explore new capabilities, endpoints, and examples to integrate ContentIQ seamlessly.
+
+Latest Release (v1.2.5)
+On this page
+Latest Documentation
+ContentIQ User Guide
+▾
+What is ContentIQ?
+Prerequisites
+Five-Minute Quick Start
+Authentication & Setup
+Connect Content & Ingest Knowledge
+Create or Extend Agents
+Chat Playground & Conversations
+Deployment & Embedding
+Analytics & Monitoring
+Governance, Security & Compliance
+Troubleshooting
+Best Practices
+FAQ
+Support & Resources
+Releases
+▾
+v1.2.5 Latest
+v1.2.4
+v1.2.3
+v1.2.2
+v1.2.1
+v1.2.0
+v1.1.0
+v1.0.0
+API Reference
+▾
+Overview
+Getting Your API Key
+Rate Limits
+Chat with Your Agent
+Upload Documents
+Check Ingestion Status
+List Structured Data Files
+Delete Structured Data File
+List Milvus Sources
+Delete Milvus Chunks by Source
+Delete Entire Milvus Collection
+ContentIQ User Guide
+Enterprise-grade, AI-powered content intelligence platform built in collaboration with IBM watsonX Orchestrate (wxO).
+
+What is ContentIQ?
+ContentIQ is an enterprise‑grade, AI‑powered content intelligence platform built in collaboration with IBM watsonX Orchestrate (wxO). It ingests knowledge from websites, Microsoft OneDrive, and local documents, then powers watsonX Orchestrate agents with grounded, source‑cited answers. ContentIQ lets you create new wxO agents or extend existing ones, orchestrate multiple agents, deploy chat widgets, and monitor usage and ingestion with unified analytics.
+
+1) Prerequisites
+An IBM watsonX Orchestrate account and wxO API key.
+Content sources you can access: public/internal websites, OneDrive, or local docs (PDF, DOCX, PPTX, XLSX, TXT, etc.).
+Appropriate enterprise permissions to connect sources and deploy agents (RBAC supported).
+Modern browser (Chrome, Edge, Safari) and network access to target sites.
+2) Five‑Minute Quick Start
+Sign in to ContentIQ and open Settings.
+Paste your wxO API Key and API URL, then Save Settings.
+Go to Connections → Website Connect (or Document/OneDrive Connect), add your source.
+Choose Agent Type: use an existing wxO agent or create a new one.
+Ingest and watch progress in Ingest Analytics.
+Test in Chat Playground.
+Deploy via Embed (copy snippet) or Deploy Agent (form‑based push).
+Track impact in Usage Analytics.
+3) Authentication & Setup
+Setup Steps:
+Navigate to Settings in the left sidebar.
+Enter:
+User Name (optional display name)
+Orchestrate API Key
+Orchestrate API URL (e.g., https://api.orchestrate.com)
+Click Save Settings.
+All users can update their watsonX Orchestrate (wxO) API key and API URL from Settings.
+
+Tip
+
+API keys are stored securely; rotate them per your enterprise policy.
+
+4) Connect Content & Ingest Knowledge
+ContentIQ supports Website Ingestion, Document Uploads, and Microsoft OneDrive. Each path can attach knowledge to a new or existing wxO agent.
+
+A. Website Ingestion
+Step 1:
+Go to Connections → Website Connect.
+
+Enter the Website URL you want to ingest and click Continue.
+
+Step 2: Choose Agent Type
+Use Existing Agent (recommended if you already have a wxO agent)
+Create New Agent (provisions a new agent in wxO via ContentIQ)
+Step 3:
+If using an existing agent, Select an Existing Agent from the list and Finish & Connect.
+
+ContentIQ starts ingestion using an enterprise‑grade scraper with parallel fetching and retry logic.
+
+Monitor live progress and post‑run health in Ingest Analytics.
+
+What's handled automatically
+Parallel crawling with backoff & retries
+De‑duplication and chunking for high‑quality embeddings
+Automated versioning and scheduled re‑ingestion to keep knowledge fresh
+Best practices
+Prefer a sitemap or a hub page with links to ensure coverage.
+Ensure robots.txt / auth policies allow your crawl.
+Use stable URLs for evergreen docs and release notes.
+B. Document Uploads
+Process:
+Go to Connections → Document Upload.
+Drag‑and‑drop or select files (PDF, DOCX, PPTX, XLSX, TXT, etc.).
+Choose the target agent (existing or new) and start ingestion.
+Use batch uploads for large libraries; ContentIQ processes in parallel.
+Notes
+
+Versioning keeps the newest copy active; historical traces support analytics.
+Non‑text PDFs should include a text layer (OCR if needed) for best results.
+C. Microsoft OneDrive
+Process:
+Go to Connections → OneDrive Connect.
+Authenticate via Microsoft OAuth.
+Select files or folders to ingest; start batch processing.
+Monitor progress in Ingest Analytics.
+Additional connectors (SharePoint, Box, Google Drive) follow a similar flow.
+
+D. Active ingestions list on Connect
+When one or more ingestions are running and you open Connect (e.g. Connect → All Connections or a connector wizard), the page may show an alert. If multiple ingestions are active and you click View Status, a modal lists all active runs so you can open the status page for a specific one.
+
+Active Ingestions
+Website Ingest
+Support Agent
+Manual
+View Status
+OneDrive Ingest
+HR Policy Agent
+Auto-scheduled
+View Status
+Close
+Each row shows the connector type, target agent, whether the run is Manual or Auto-scheduled, and a link to the status page. The modal is shown on Connect when there are multiple active ingestions.
+
+5) Create or Extend Agents (Orchestration)
+ContentIQ works natively with wxO's agent orchestration layer.
+
+Create new agents: Provision directly in ContentIQ; they appear in wxO.
+Extend existing agents: Attach ingested knowledge to any wxO agent.
+Multi‑agent orchestration: Route queries or tasks across multiple domain agents.
+Grounded answers: Responses are sourced only from verified content (minimizing hallucinations) with source citations.
+RBAC: Apply role‑based permissions for who can connect sources, deploy, or view analytics.
+Where to work with agents:
+During connection flows (Website/Document/OneDrive) when you choose the agent.
+In Chat Playground for active agent selection and testing.
+6) Chat Playground & Conversations
+A. Chat Playground
+Usage:
+Open Chat Playground in the sidebar.
+Pick the active agent from the dropdown.
+Ask questions; observe streaming responses and contextual memory.
+B. Conversations
+Features:
+Navigate to Conversations to see session history across agents.
+View a conversation, or Download it for audits and training feedback.
+Threaded history offers continuity across sessions (ContentIQ + wxO).
+Quality tips
+
+Use clear prompts; leverage agent‑specific language (e.g., "Based on policy docs, what's…").
+If an answer is incomplete, add missing docs and re‑ingest.
+7) Deployment & Embedding
+Option 1: Embed the Agent (Widget)
+Steps:
+Go to Deploy Agent → Embed Agent.
+Select agent to embed.
+Copy the code snippet shown for that agent.
+Paste the snippet before the closing </body> tag (or where your widget container lives).
+Refresh your site; the agent widget appears.
+Branding & UX
+Customize colors, fonts, and placement to match your design system.
+Configure default opening message and suggested prompts.
+Option 2: Deploy the Agent (Form Push)
+Steps:
+Go to Deploy Agent → Deploy Agent.
+Select the agent instance.
+Enter the target URL (destination website or portal).
+Click Deploy.
+Integration hooks
+REST APIs allow advanced embedding and application integrations.
+Handoffs from ContentIQ agents to wxO workflows are supported.
+8) Analytics & Monitoring
+ContentIQ provides unified analytics across ingestion and usage for both ContentIQ and wxO activity.
+
+A. Ingest Analytics (Pipeline Health)
+Key Cards & Metrics
+Total Documents Ingested and Success Rate
+Ingest Time (with trend vs. prior runs)
+Embedding Coverage (% of chunks successfully embedded)
+Duplicate Content (% filtered duplicates)
+Average Chunk Length & Chunk Overlap Ratio
+Failures (by type)
+Failure Types
+Content Fetch Failures: 404, 403, timeouts, SSL, rate limits
+Preprocessing/Chunking Failures: e.g., missing structure, block length, encoding anomalies
+Parsing Errors: corrupted files, unsupported file types, JS‑heavy pages
+Embedding/Storage Errors: LLM embedding timeout, chunk size limit exceeded, embedding rate limit hit, vector store insert failure, vector schema mismatch
+Each card includes a trend indicator (↑/↓) to highlight regressions or improvements.
+
+Operator actions
+Fix 404/403 by updating URLs or allowlisting the crawler.
+Address parsing with alternate formats (e.g., export HTML → PDF with text).
+Reduce chunk size or increase limits for embedding timeouts.
+Re‑run ingestion after fixes; schedule re‑ingestion for freshness.
+B. Usage Analytics (Adoption & Answer Quality)
+Engagement
+Total Questions (with trend)
+Active Users (weekly/monthly)
+Average Session Length
+User Feedback Rate and Helpful Answer Rate
+Answer Quality
+Answer Success Rate and Fallback Rate
+Hallucination Rate and Citation Accuracy
+Query Completion Rate and Prompt Latency
+Insights
+Most Queried Content Types (FAQ, blogs, docs, etc.)
+Topic Clustering Insights and Unsuccessful Topic Clustering
+Languages Used (English, French, Spanish, Other)
+Top Referred Sources (Support, Docs, FAQ, etc.)
+Optimization playbook
+Low Helpful Answer Rate → add missing docs; refine chunking; provide more examples.
+High Fallback Rate → broaden coverage; tune retrieval; add synonyms.
+Elevated Hallucination Rate → verify sources; tighten grounding; enforce citations.
+High Latency → reduce context size; cache FAQs; scale infra; review concurrency.
+9) Governance, Security & Compliance
+ContentIQ implements enterprise-grade security measures to protect your data and ensure compliance with industry standards.
+
+Encryption & Security
+For On-Premises
+
+The client is responsible for applying and enforcing all required security controls, including (but not limited to) changing all default passwords, implementing appropriate access controls, ensuring encryption standards are met, and maintaining compliance with relevant security policies and best practices.
+
+For SaaS:
+We provided embedded instances and manage the following environments for the client with the following security configurations. The client also has the option to point to their own instances in which case the client has the full responsibility of applying and enforcing all required security controls.
+
+MongoDB Storage
+Encryption at rest: AES-256-GCM
+For on premise – client responsibility to configure
+Sensitive data encryption:
+API keys encrypted with Fernet before storage
+Passwords hashed with bcrypt (not reversible)
+Session data stored with TTL (24 hours)
+Encryption in Transit: TLS 1.3
+Vector Storage
+Supported Vector Databases: Supports Zilliz Cloud, Qdrant, Azure
+Credentials storage: credentials (URI, token) stored in MongoDB encrypted
+Encryption in Transit: Uses TLS for connections to vector database endpoints
+Encryption at rest: enabled by default for SaaS - AES-256
+For on premise – client responsibility to configure
+Object Store
+Supported Object Store: AWS S3, Azure Blob
+Credentials storage: credentials stored in MongoDB encrypted
+Encryption in Transit: Uses TLS for connections to vector database endpoints
+Encryption at rest: enabled by default for SaaS - AES-256
+For on premise – client responsibility to configure
+How API Keys and Passwords are stored
+All Keys and client secrets are stored and encrypted in MongoDB
+
+API Key and secrets Encryption
+Fernet encryption
+Key derivation via PBKDF2HMAC
+Base64-encoded encrypted values
+Password Hashing
+Random salt per password
+Used for all service account passwords
+API Key Hashing
+Random salt per API key
+Used for headless API keys stored in MongoDB
+Authentication & Authorization
+For on-premises:
+We provide initial username and password, and administrator is required to integrated with their user management system (SSO, MFA)
+
+For SaaS:
+JWT/OAuth 2.0 Implementation
+IBM Broker Authentication
+JWT validation with RS256
+JWKS key fetching and validation
+CRN (Cloud Resource Name) validation
+Azure Entra ID SSO
+OAuth 2.0 flow:
+Authorization code flow with PKCE
+Code verifier/challenge generation (SHA-256)
+State parameter for CSRF protection
+Token exchange with Azure AD
+User info retrieval from Microsoft Graph API
+Security measures:
+Client secret encrypted before storage
+Domain allowlist validation (exact match only)
+Authorization code reuse prevention
+OAuth state validation and TTL (600 seconds)
+PKCE code verifier required for token exchange
+Service Account Authentication
+Username/password with bcrypt verification
+Session-based authentication with secure cookies
+User ID extraction from service account documents
+Headless API Authentication
+API key-based authentication
+Bearer token in Authorization header
+API key verification against bcrypt hash
+Tenant isolation enforced
+Multi-Factor Authentication
+SSO Support
+Azure Entra ID SSO: Fully implemented
+OAuth 2.0 with PKCE
+Domain-based authentication
+User provisioning via SSO
+SSO Configuration:
+Tenant ID, Client ID, Client Secret (encrypted)
+Redirect URI configuration
+Allowed domains list
+MFA Status
+SSO provides MFA when enabled in Azure Entra
+
+Role-Based Access Control (RBAC)
+RBAC Implementation
+Role management:
+Custom roles per tenant
+Role creation, update, deletion
+Role assignments to service accounts
+Permission checks:
+Admin role required for RBAC operations
+Role assignment synchronization across MongoDB, Milvus, Object Store
+Security features:
+Concurrent modification detection (version conflicts)
+Role assignment checks on page load
+Access Control Enforcement
+Admin-only endpoints: SSO configuration, RBAC management
+Role-based visibility: Content visibility based on assigned roles
+Service account permissions: Custom role assignments supported
+Credential Management
+ContentIQ API Key Generation
+Cryptographically secure generation:
+64-character URL-safe tokens
+Includes hash generation for storage
+Credential Storage
+Encrypted API keys, hashed passwords, encrypted SSO secrets
+Encryption key management:
+Development fallback with PBKDF2 key derivation
+Credential Revocation
+API key revocation support
+Credential revocation support
+Session invalidation on logout
+Auditability & Logging
+ContentIQ retains application logs for a default period of 365 days, after which the logs are automatically purged and permanently deleted. The client may configure a shorter or longer log retention duration based on their internal policies or compliance requirements.
+
+Conversations
+Conversations are stored in MongoDB (Encrypted)
+Ability to export:
+Thread messages downloadable as CSV
+Timestamped filenames
+JSON export also supported
+Ingestion Logging
+Tracked in multiple MongoDB collections (Encrypted), including:
+
+High-level tracking
+Detailed website crawl data
+Document processing details
+OneDrive download tracking
+SharePoint download tracking
+Client-Side Logging
+Stored in MongoDB (Encrypted)
+Admin action logging (role updates, content management)
+Security event logging for authentication failures
+Session creation/deletion logging
+Security Best Practices Implemented
+Input Validation
+Secure filename handling
+URL validation for external connections
+Domain validation (exact match only, no subdomain bypass)
+Session Security
+TTL-based session expiration (24 hours)
+Secure session cookie configuration
+Session data sanitization (removes long-lived credentials)
+Error Handling
+Secure error messages (no credential leakage)
+Exception handling with proper logging
+Network timeout configuration (10 seconds for external requests)
+Secret Management
+Environment variable-based configuration
+Encryption key stored separately from encrypted data
+Areas Requiring Infrastructure Configuration for on-premise
+Encryption at Rest and In Transit
+Requires MongoDB configuration by client
+Requires Vector Database configuration by client
+Requires MinIO configuration by client
+TLS connections enforced all in transit communication
+10) Troubleshooting
+Ingest Analytics shows "Failed to fetch"
+Check network/firewall connectivity and API credentials.
+Refresh the page; verify the analytics service is reachable.
+High 403/404 or timeouts
+Confirm the crawl domain and paths; allowlist the crawler; use stable URLs; retry.
+Parsing or JS‑heavy page errors
+Prefer static render paths or server‑side rendering; export to PDF/HTML with text.
+Embedding timeouts or size limits
+Reduce chunk size; stagger large batches; confirm embedding service quotas.
+High hallucination rate
+Add authoritative sources; enable citations; review agent grounding configuration.
+Slow prompt latency
+Reduce retrieved context; pre‑cache hot content; scale concurrency; check region proximity.
+OneDrive auth fails
+Re‑authenticate via OAuth; confirm tenant consent and folder permissions.
+11) Best Practices
+Start with one high‑value agent (e.g., Support or Policy) before expanding.
+Curate a canonical source set (docs, KB, policies); avoid noisy pages.
+Use clear titles and headings to help chunking and retrieval.
+Schedule regular re‑ingestion after product releases or policy changes.
+Review Usage Analytics weekly; feed gaps back into ingestion.
+12) FAQ
+Q: Can I use my existing wxO agents?
+A: Yes. Select Use Existing Agent during connection and choose from the list.
+
+Q: How do I deploy to an internal portal?
+A: Use Embed Agent to copy the widget snippet into your portal's HTML, or integrate via REST APIs.
+
+Q: Can I export conversations for audit?
+A: Yes. Go to Conversations and use Download.
+
+13) Support & Resources
+API Documentation & Integration Guides: (available from symplistic.ai)
+Knowledge Base & Troubleshooting: (available from symplistic.ai)
+Email Support: info@symplistic.ai
