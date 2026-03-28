@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Shield, RefreshCw, AlertTriangle, MapPin } from "lucide-react";
 import TideMap from "@/components/TideMap";
 import AnalysisSidebar from "@/components/AnalysisSidebar";
+import WeatherWidget from "@/components/WeatherWidget";
 import type { FWCFeature } from "@/lib/fwc-api";
 import { fetchFWCData, getHighestThreatLevel, getAbundanceLabel } from "@/lib/fwc-api";
 import type { WindData } from "@/lib/wind-api";
@@ -239,6 +240,9 @@ export default function Dashboard() {
             </div>
           </motion.div>
         )}
+
+        {/* Weather Widget */}
+        <WeatherWidget lat={CENTER_LAT} lng={CENTER_LNG} />
       </div>
 
       {/* Right sidebar */}
