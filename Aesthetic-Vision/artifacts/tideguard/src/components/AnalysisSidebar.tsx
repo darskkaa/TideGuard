@@ -56,7 +56,7 @@ function WindRow({ wind }: { wind: WindData | null }) {
 }
 
 const CONTENTIQ_DEPLOYMENT_URL = import.meta.env.VITE_CONTENTIQ_DEPLOYMENT_URL ||
-  "https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=7d13ad4b-3e94-4651-a50e-e7d03232f7b9";
+  "https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=83e6c4e9-5428-474a-88f2-ca533af9eb4f";
 
 function ContentIQWidget({
   selectedArticle,
