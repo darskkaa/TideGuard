@@ -19,7 +19,7 @@ export const KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
     title: "What is Red Tide? Karenia brevis Resources for Southwest Florida",
     source: "SCCF",
     date: "2026-03-28",
-    url: "https://sccf.org/red-tide-resources/",
+    url: "https://sccf.org/what-we-do/water-quality/red-tide-resources/",
     content: `Karenia brevis is a single-celled organism belonging to a group of algae called dinoflagellates. Large concentrations of this organism, called blooms or 'red tides,' can discolor water red to brown, giving it its name. Karenia brevis occurs in marine and estuarine waters of Florida and typically blooms in the late summer or early fall.
 
 Blooms develop offshore and are brought inshore by currents and winds, usually in bottom waters. Karenia brevis produces neurotoxins called brevetoxins that can sicken or kill fish, seabirds, turtles, and marine mammals. Toxins can also affect humans, causing respiratory irritation if aerosolized toxins are inhaled, skin and/or eye irritation by contact, or shellfish poisoning if shellfish contaminated with toxins are consumed.
@@ -53,7 +53,7 @@ The Town of Sanibel reminded residents of existing fertilizer restrictions in th
     title: "Hundreds of volunteers needed on Sanibel for study on red tide's respiratory effects",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/health-news-florida/2026-01-08/volunteers-sanibel-red-tide-respiratory-study",
+    url: "https://www.wusf.org/health-news-florida/2026-01-08/hundreds-of-volunteers-needed-on-sanibel-for-study-on-red-tides-respiratory-effects",
     content: `The Roskamp Institute is seeking 400 volunteers from the Sanibel community to participate in a groundbreaking study on red tide's respiratory health impacts. The research aims to understand why some individuals exposed to aerosolized red tide toxins experience respiratory distress while others remain unaffected.
 
 The study will take place at the Sanibel-Captiva Conservation Foundation and will involve health assessments, respiratory testing, and longitudinal follow-up. Participants will help scientists identify individual risk factors—such as underlying asthma, age, baseline lung function, or genetic predisposition—that may influence susceptibility to red tide toxin inhalation injuries. Results will inform public health guidance and individual risk stratification during future blooms.`,
@@ -63,7 +63,7 @@ The study will take place at the Sanibel-Captiva Conservation Foundation and wil
     title: "DeSantis pledges $112 million for water projects and fighting red tide",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-12-04/desantis-112-million-water-projects-red-tide",
+    url: "https://www.wusf.org/environment/2025-12-04/desantis-pledges-112-million-water-projects-fighting-red-tide",
     content: `Governor Ron DeSantis announced over $100 million in grants Wednesday to improve drinking water supplies and prevent harmful algal blooms across Florida. The state funding targets spring restoration and nitrogen-load reduction initiatives in sensitive watersheds, with emphasis on areas that feed into red tide bloom zones like Charlotte Harbor and Tampa Bay.
 
 The grants support municipal stormwater treatment upgrades, septic-to-sewer conversions, and agricultural best management practices to reduce nutrient runoff. DeSantis stated that reducing nitrogen and phosphorus in Florida's waterways is critical to both public health and economic recovery in coastal communities dependent on tourism and fishing.`,
@@ -73,7 +73,7 @@ The grants support municipal stormwater treatment upgrades, septic-to-sewer conv
     title: "Cage fight: Some worry fish farms could be a floating hazard in the storm-lashed Gulf",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-11-26/fish-farms-gulf-offshore-aquaculture-florida",
+    url: "https://www.wusf.org/environment/2025-11-26/cage-fight-some-worry-fish-farms-could-be-floating-hazard-in-storm-lashed-gulf",
     content: `The Trump administration's push for offshore aquaculture competitiveness has sparked concern among marine scientists and Gulf fishing communities about potential environmental consequences. Proposed fish farm locations off Florida's west coast could introduce new nutrient loading pathways and disease transmission vectors that could exacerbate red tide blooms.
 
 Marine scientists and local fishermen argue that open-net cage operations release uneaten feed, feces, and other nutrients into the water column, potentially creating localized eutrophication zones. These zones can trigger harmful algal bloom initiation or intensification, particularly in areas already experiencing high background nitrogen from upstream watershed sources. The debate continues as federal agencies weigh economic benefits against documented environmental risks.`,
@@ -83,7 +83,7 @@ Marine scientists and local fishermen argue that open-net cage operations releas
     title: "'Tis the red tide season: high levels along the Panhandle coast",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/weather/2025-11-04/red-tide-season-panhandle-coast",
+    url: "https://www.wusf.org/weather/2025-11-04/tis-the-red-tide-season-high-levels-in-the-panhandle-coast",
     content: `As fall transitions to winter, red tide season activates along Florida's coast. Elevated levels of Karenia brevis were reported in multiple samples from the Florida Panhandle, with concentrations building in offshore waters from Destin to the Big Bend region.
 
 The season typically begins in early fall and can persist for months, driven by optimal water temperatures, nutrient availability, and coastal circulation patterns. While Southwest Florida and central Gulf areas remain free of active blooms at present, continued monitoring is critical. Atmospheric and water conditions are conducive to bloom transport and inshore movement, particularly if westerly winds and Gulf currents redirect subsurface water masses toward the coast.`,
@@ -93,7 +93,7 @@ The season typically begins in early fall and can persist for months, driven by 
     title: "Everglades Foundation develops early-warning system for red tide",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-10-04/everglades-foundation-early-warning-red-tide",
+    url: "https://www.wusf.org/environment/2025-10-04/everglades-foundation-develops-early-warning-system-for-red-tide",
     content: `The Everglades Foundation has unveiled a new early-warning forecasting system for red tide blooms in Southwest Florida that achieves up to 84% accuracy in predicting dangerous Karenia brevis outbreaks. The system integrates real-time water quality data, oceanographic circulation models, nutrient loading estimates, and meteorological forecasts to provide a unified risk assessment.
 
 The predictive tool can issue warnings 5-10 days in advance of bloom intensification, providing critical lead time for public health agencies, coastal businesses, and recreational water users to implement protective measures. The Foundation is working with NOAA, FWC, and state health departments to integrate the early-warning system into official beach advisory protocols.`,
@@ -103,7 +103,7 @@ The predictive tool can issue warnings 5-10 days in advance of bloom intensifica
     title: "Environmental educators prepare for Florida's red tide season",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-05-21/environmental-educators-florida-red-tide-season",
+    url: "https://www.wusf.org/environment/2025-05-21/environmental-educators-prepare-for-florida-red-tide-season",
     content: `As blooms of blue-green algae and Karenia brevis begin to form in Southwest and Central Florida, environmental educators are ramping up outreach programs to inform tourists, residents, and school children about the biology, health risks, and economic impacts of harmful algal blooms.
 
 Educational initiatives include beach cleanup days emphasizing nutrient reduction, interpretive signs at public access points explaining bloom causes, and classroom curricula on phytoplankton ecology and water quality. The goal is to build public understanding of the human activities (agriculture, fertilizer use, stormwater runoff) that intensify blooms and to empower communities to advocate for nutrient-reduction policies and best management practices.`,
@@ -113,7 +113,7 @@ Educational initiatives include beach cleanup days emphasizing nutrient reductio
     title: "NOAA cuts could harm Southwest Florida fishing economy, threaten red tide research",
     source: "WUSF / Suncoast Searchlight",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-05-19/noaa-cuts-fishing-economy-red-tide-research",
+    url: "https://www.wusf.org/environment/2025-05-19/noaa-cuts-could-harm-southwest-florida-fishing-economy-threaten-red-tide-research",
     content: `Proposed federal budget cuts to NOAA programs could substantially harm Southwest Florida's fishing economy and threaten ongoing red tide monitoring and forecasting research. In Florida, commercial and recreational fishing supported $24.6 billion in economic activity in 2022 alone, with coastal communities heavily dependent on stable fish stocks and market access.
 
 NOAA programs targeted for reduction include the National Centers for Coastal Ocean Science (which operates the NCCOS red tide forecasting tool), the NOAA Fisheries Statistics Division, and regional oceanographic research centers. Loss of these programs would eliminate real-time oceanographic monitoring, reduce forecast accuracy, and curtail long-term studies of bloom drivers and ecosystem impacts. Stakeholders warn that red tide research gaps will delay mitigation strategies and leave communities vulnerable to unexpected blooms.`,
@@ -123,7 +123,7 @@ NOAA programs targeted for reduction include the National Centers for Coastal Oc
     title: "Viruses that supercharge red tide are identified by USF researchers",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-03-21/viruses-supercharge-red-tide-usf-researchers",
+    url: "https://www.wusf.org/environment/2025-03-21/viruses-that-supercharge-red-tide-are-identified-by-usf-researchers",
     content: `Researchers at the University of South Florida have identified novel viral particles that appear to supercharge Karenia brevis growth and toxin production during bloom events. The viruses, known as KbV (Karenia brevis viruses), may act as cofactors that increase cellular replication rates and elevate intracellular brevetoxin concentrations.
 
 The discovery opens new research avenues into bloom intensity prediction and potential biocontrol strategies. USF scientists hope the findings will eventually enable forecasters to predict not just *when* blooms will occur, but *how severe* they will become based on viral abundance and metabolic activity. This enhanced predictive capacity could allow targeted public health responses and beach closure decisions with greater precision.`,
@@ -133,7 +133,7 @@ The discovery opens new research avenues into bloom intensity prediction and pot
     title: "Beach advisories cancelled as red tide from Tampa Bay to Key West fades",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-03-16/beach-advisories-cancelled-red-tide-fades",
+    url: "https://www.wusf.org/environment/2025-03-16/beach-advisories-cancelled-as-red-tide-from-tampa-bay-to-key-west-fades",
     content: `The Florida Department of Health in Lee County lifted nearly a dozen health alerts and beach advisories as the recent red tide bloom that stretched from Tampa Bay to Key West began to disperse and fade. All sampling sites where Gulf waters were tested for red tide during the past ten days returned grey (negative) results, indicating Karenia brevis concentrations had fallen below detection thresholds.
 
 The bloom, which persisted for approximately 8 weeks, caused significant economic impact to coastal tourism and hospitality businesses, as well as documented respiratory health effects in vulnerable populations. Preliminary post-bloom analysis suggests that a combination of unfavorable wind patterns (shifting offshore), cooler water temperatures, and possible nutrient depletion contributed to bloom senescence and offshore transport.`,
@@ -143,7 +143,7 @@ The bloom, which persisted for approximately 8 weeks, caused significant economi
     title: "Athletes and artists are rallying fans to save warming oceans",
     source: "WUSF",
     date: "2026-03-28",
-    url: "https://wusfnews.wusf.usf.edu/environment/2025-03-10/athletes-artists-warming-oceans",
+    url: "https://www.wusf.org/environment/2025-03-10/athletes-and-artists-are-rallying-fans-to-save-warming-oceans",
     content: `Team Ocean, a coalition of professional athletes, artists, and environmental advocates, is launching a multi-year campaign to raise awareness about ocean warming, acidification, and harmful algal blooms through social media, public events, and sponsorships at major sporting events including the World Cup and the 2028 Olympic Games.
 
 The initiative links red tide and other marine biotoxin events to broader climate change and ocean health dynamics. Campaign messaging emphasizes that warming water temperatures are shifting the seasonal timing and geographic range of Karenia brevis blooms, making historical prediction models less reliable. Team Ocean advocates for rapid decarbonization and marine protected areas to stabilize ocean conditions and reduce bloom frequency.`,
@@ -184,8 +184,100 @@ As a Red Tide Agent, use the above spatial, temporal, and depth relationships to
 `;
 
 /**
+ * AI Processing Examples — Shows how to handle articles with reasoning
+ */
+export const AI_PROCESSING_EXAMPLES = `
+==========
+EXAMPLE PROCESSING WORKFLOW FOR ARTICLES
+==========
+
+PROCESS 1: FETCH LIVE ARTICLE → CHUNK → ANALYZE
+---
+User Query: "What are the health impacts of red tide?"
+
+Step 1: FETCH LIVE ARTICLE
+  ✓ Fetched: sccf-1 "What is Red Tide? Karenia brevis Resources"
+  ✓ Source: SCCF
+  ✓ Date: 2026-03-28
+
+Step 2: CHUNK & EXTRACT KEY INFORMATION
+  • Organism: Single-celled dinoflagellate (Karenia brevis)
+  • Neurotoxins: Called brevetoxins
+  • Health impacts on humans:
+    - Respiratory irritation (aerosolized toxins)
+    - Skin and eye irritation (contact)
+    - Shellfish poisoning (contaminated seafood)
+  • Affected wildlife: Fish, seabirds, turtles, marine mammals
+
+Step 3: ANSWER BASED ON CHUNKED DATA
+Response: "According to SCCF resources, Karenia brevis red tide produces brevetoxins that affect human health through three pathways: respiratory irritation from aerosolized toxins, skin/eye irritation from direct contact, and shellfish poisoning if contaminated seafood is consumed. Marine life including fish, seabirds, turtles, and marine mammals are also susceptible."
+
+---
+
+PROCESS 2: LINK ARTICLES FOR COMPREHENSIVE ANSWER
+---
+User Query: "How does human activity make red tides worse?"
+
+Step 1: FETCH LIVE ARTICLE
+  ✓ Primary: sccf-2 "Study Finds Human Activity Fuels Red Tide"
+  ✓ Supporting: wusf-3 "DeSantis Pledges $112M for Water Projects"
+
+Step 2: CHUNK & CROSS-REFERENCE
+  From sccf-2:
+  • Study period: 2012-2021 (decade of data)
+  • Nitrogen source: Caloosahatchee River, Lake Okeechobee, upstream areas
+  • Mechanism: Nutrient runoff intensifies naturally-occurring blooms
+  • Contributors: Agriculture, fertilizer, septic systems
+
+  From wusf-3:
+  • Policy response: $100M+ in grants for nutrient reduction
+  • Targets: Stormwater upgrades, septic-to-sewer, agricultural best practices
+
+Step 3: SYNTHESIZE ANSWER
+Response: "Research from the University of Florida and SCCF (2012-2021) shows that human activities—particularly nitrogen-rich runoff from agriculture, fertilizers, and septic systems—directly intensify red tide blooms. Nitrogen from the Caloosahatchee River, Lake Okeechobee, and upstream sources fuels bloom intensity. In response, Florida is investing $100M+ in nutrient-reduction projects including stormwater treatment, septic conversions, and agricultural best management practices."
+
+---
+
+PROCESS 3: CONTEXTUAL RISK ASSESSMENT
+---
+User Query: "What should a beachfront restaurant do right now?"
+
+Step 1: FETCH LIVE DATA
+  ✓ FWC Bloom Level: [Retrieved from dashboard: CURRENT_LEVEL]
+  ✓ Wind Direction: [Retrieved: CURRENT_WIND]
+  ✓ Relevant Article: wusf-1 "Fish Kill in Buccaneer Lagoon" (March 19, 2026)
+  ✓ Supporting: sccf-1 "Red Tide Health Impacts"
+
+Step 2: CHUNK & APPLY BUSINESS CONTEXT
+  From sccf-1:
+  • Key risk: Respiratory irritation from aerosolized toxins
+  • Vulnerable population: Customers with asthma, respiratory conditions
+
+  From wusf-1:
+  • Recent action: Sanibel reminded residents of fertilizer restrictions
+  • Lesson: Even oxygen depletion (not red tide) caused fish kills
+
+  Current conditions:
+  • Bloom level: [DYNAMIC]
+  • Wind: [DYNAMIC - onshore = toxins toward coast]
+
+Step 3: PROVIDE ACTIONABLE GUIDANCE
+Response: "Based on current conditions (FWC level: [X], Wind: [Y]), I recommend:
+1. Monitor FWC daily for bloom status changes
+2. If wind is onshore, post respiratory health advisories at entrance
+3. Move outdoor seating to indoor areas if bloom intensity is elevated
+4. Inform staff about red tide respiratory risks per SCCF guidelines
+5. Ensure HVAC filters are fresh (red tide toxins can drift inland)
+6. Follow local nutrient/stormwater best practices (as per Sanibel/Naples ordinances)"
+
+==========
+KEY PRINCIPLE: CHUNK → VERIFY → CONTEXTUALIZE → ANSWER
+==========
+`;
+
+/**
  * Single compiled knowledge base string ready for copy/paste into IBM watsonx
- * Contains all articles formatted with metadata and the ML analysis report
+ * Contains all articles formatted with metadata, ML analysis, and processing examples
  */
 export const FULL_KNOWLEDGE_BASE = `
 ${KNOWLEDGE_ARTICLES.map(
@@ -202,4 +294,6 @@ ${a.content}`
 ==========
 
 ${ML_ANALYSIS_REPORT}
+
+${AI_PROCESSING_EXAMPLES}
 `;
