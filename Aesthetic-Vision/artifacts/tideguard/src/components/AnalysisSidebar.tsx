@@ -55,10 +55,8 @@ function WindRow({ wind }: { wind: WindData | null }) {
   );
 }
 
-const WIDGET_AGENT = "1f1af1fb-c3fa-4286-b4aa-6a609d5c91e3";
-const WIDGET_TOKEN = "9ee484b45a15dcc3cef0206aabcea67c0b0d7577144bebb5b5e33662d6913319";
-const WIDGET_CONTEXT_KEY = "wojC-frjPRptEYPG65m_CV3_u_0Q3vWF9dyC2CG7GkAv9IW378Myvus821YojuTkCyiq0O4r5IT3e3gT_VA8WQ";
-const WIDGET_BACKEND = `${window.location.origin}/api/ciq`;
+const CONTENTIQ_DEPLOYMENT_URL = import.meta.env.VITE_CONTENTIQ_DEPLOYMENT_URL ||
+  "https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=7d13ad4b-3e94-4651-a50e-e7d03232f7b9";
 
 function ContentIQWidget({
   selectedArticle,
@@ -78,11 +76,8 @@ function ContentIQWidget({
     scriptLoadedRef.current = true;
 
     const script = document.createElement("script");
-    script.src = "https://contentiq-widget.pages.dev/widget.js";
-    script.setAttribute("data-agent", WIDGET_AGENT);
-    script.setAttribute("data-token", WIDGET_TOKEN);
-    script.setAttribute("data-backend", WIDGET_BACKEND);
-    script.setAttribute("data-api-key", WIDGET_CONTEXT_KEY);
+    script.src = "https://partners.contentiq.symplistic.ai/external/embed/chat.js";
+    script.setAttribute("data-chat-id", "7d13ad4b-3e94-4651-a50e-e7d03232f7b9");
     script.async = true;
     document.body.appendChild(script);
 
