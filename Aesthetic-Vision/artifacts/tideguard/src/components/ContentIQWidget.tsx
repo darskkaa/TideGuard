@@ -10,10 +10,8 @@ interface ContentIQWidgetProps {
 
 const WIDGET_SCRIPT_URL = "https://contentiq-widget.pages.dev/widget.js";
 
-let scriptLoaded = false;
-
 function loadWidgetScript(agentId: string, token: string, backend: string) {
-  // Avoid loading multiple times
+  // Avoid loading multiple times per agent
   const existing = document.querySelector(`script[data-agent="${agentId}"]`);
   if (existing) return;
 
@@ -24,17 +22,22 @@ function loadWidgetScript(agentId: string, token: string, backend: string) {
   script.setAttribute("data-token", token);
   script.setAttribute("data-backend", backend);
   document.body.appendChild(script);
-  scriptLoaded = true;
+}
+
+// Use our own backend proxy to avoid CORS issues on deployed domain
+function getProxyBackend() {
+  return `${window.location.origin}/api/ciq`;
 }
 
 export default function ContentIQWidget({
   agentId,
   token,
-  backend = "https://backend.contentiq.symplistic.ai",
+  backend,
   className,
   style,
 }: ContentIQWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const resolvedBackend = backend ?? getProxyBackend();
 
   useEffect(() => {
     const container = containerRef.current;
@@ -46,16 +49,15 @@ export default function ContentIQWidget({
     embedDiv.setAttribute("data-agent", agentId);
     container.appendChild(embedDiv);
 
-    // Load the widget script
-    loadWidgetScript(agentId, token, backend);
+    // Load the widget script — routes through our proxy to avoid CORS
+    loadWidgetScript(agentId, token, resolvedBackend);
 
     return () => {
-      // Cleanup: remove the embed div on unmount
       if (container.contains(embedDiv)) {
         container.removeChild(embedDiv);
       }
     };
-  }, [agentId, token, backend]);
+  }, [agentId, token, resolvedBackend]);
 
   return (
     <div

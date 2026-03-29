@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  WMSTileLayer,
   CircleMarker,
   Polyline,
   Polygon,
@@ -222,6 +221,20 @@ function EvacZonePolygons() {
   );
 }
 
+// FEMA Flood Zones using ArcGIS MapServer tile export (works at all zoom levels)
+function FemaFloodLayer() {
+  const map = useMap();
+  useEffect(() => {
+    const layer = L.tileLayer(
+      "https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/tile/{z}/{y}/{x}",
+      { opacity: 0.45, attribution: "FEMA NFHL", maxZoom: 19 }
+    );
+    layer.addTo(map);
+    return () => { map.removeLayer(layer); };
+  }, [map]);
+  return null;
+}
+
 function MapFlyTo({ storms }: { storms: HurricaneStorm[] }) {
   const map = useMap();
   useEffect(() => {
@@ -377,17 +390,8 @@ export default function HurricaneMap({ storms, wind: _wind, loading }: Props) {
           maxZoom={19}
         />
 
-        {/* FEMA Flood Zones WMS */}
-        {showFlood && (
-          <WMSTileLayer
-            url="https://hazards.fema.gov/gis/nfhl/services/public/NFHL/MapServer/WMSServer"
-            layers="28"
-            format="image/png"
-            transparent={true}
-            opacity={0.45}
-            attribution="FEMA NFHL"
-          />
-        )}
+        {/* FEMA Flood Zones via ArcGIS REST export */}
+        {showFlood && <FemaFloodLayer />}
 
         {/* Evacuation Zone Polygons */}
         {showEvac && <EvacZonePolygons />}
