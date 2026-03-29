@@ -377,16 +377,6 @@ const AERIS_CREDS = "cPGg0QrhyIYBgkuNI4t1E_Xnq1iKNj3Vhry4JIHtJetnwlAkbgzjZj3GHPc
 const RADAR_FRAMES = ["-120min", "-90min", "-60min", "-30min", "current"] as const;
 const FRAME_LABELS = ["-2h", "-90m", "-60m", "-30m", "LIVE"] as const;
 
-function RadarTileLayer({ frame }: { frame: string }) {
-  return (
-    <TileLayer
-      key={frame}
-      url={`https://maps1.aerisapi.com/${AERIS_CREDS}/radar/{z}/{x}/{y}/${frame}.png`}
-      opacity={0.72}
-      zIndex={200}
-    />
-  );
-}
 
 function MapFlyTo({ storms }: { storms: HurricaneStorm[] }) {
   const map = useMap();
@@ -564,7 +554,14 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
           maxZoom={19}
         />
 
-        {showRadar && <RadarTileLayer frame={RADAR_FRAMES[frameIndex]} />}
+        {showRadar && RADAR_FRAMES.map((f, i) => (
+          <TileLayer
+            key={f}
+            url={`https://maps1.aerisapi.com/${AERIS_CREDS}/radar/{z}/{x}/{y}/${f}.png`}
+            opacity={i === frameIndex ? 0.72 : 0}
+            zIndex={i === frameIndex ? 201 : 200}
+          />
+        ))}
         {showFlood && <StaticFloodZoneLayer />}
         {showEvac && <EvacZonePolygons />}
         {showShelters && <ShelterMarkers />}

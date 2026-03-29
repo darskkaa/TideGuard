@@ -326,6 +326,9 @@
 }
 
 /* Leaflet map overrides */
+.leaflet-tile-pane .leaflet-layer {
+  transition: opacity 0.6s ease;
+}
 .leaflet-container {
   background: #060d17 !important;
   font-family: var(--app-font-sans) !important;
