@@ -1,13 +1,9 @@
 import { useState } from "react";
 import { Wind, Newspaper, MessageSquare, X, ChevronRight } from "lucide-react";
-import { motion } from "framer-motion";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
 import type { AbundanceLevel } from "@/lib/fwc-api";
-import ContentIQWidget from "@/components/ContentIQWidget";
-
-const RED_ALGAE_AGENT_ID = "1f1af1fb-c3fa-4286-b4aa-6a609d5c91e3";
-const RED_ALGAE_AGENT_TOKEN = "9ee484b45a15dcc3cef0206aabcea67c0b0d7577144bebb5b5e33662d6913319";
+const RED_ALGAE_CHAT_URL = "https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=83e6c4e9-5428-474a-88f2-ca533af9eb4f";
 
 function timeAgo(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -261,10 +257,10 @@ export default function AnalysisSidebar({
             </button>
           </div>
           <div className="flex-1 min-h-0 p-4">
-            <ContentIQWidget
-              agentId={RED_ALGAE_AGENT_ID}
-              token={RED_ALGAE_AGENT_TOKEN}
-              style={{ height: "100%", borderRadius: 12 }}
+            <iframe
+              src={RED_ALGAE_CHAT_URL}
+              style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
+              allow="microphone"
             />
           </div>
         </div>

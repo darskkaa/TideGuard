@@ -5,10 +5,7 @@ import { getCategoryColor, getCategoryLabel, getThreatLevel } from "@/lib/hurric
 import type { WindData } from "@/lib/wind-api";
 import type { NewsArticle } from "@/lib/news-api";
 import { fetchHurricaneNews } from "@/lib/hurricane-news-api";
-import ContentIQWidget from "@/components/ContentIQWidget";
-
-const HURRICANE_AGENT_ID = "27943894-9de9-4484-a930-0aa992d9dbf9";
-const HURRICANE_AGENT_TOKEN = "49c827593630faf8d37b801d1de50eb58d0874f9e96fa8410d55840ebf06c12a";
+const HURRICANE_CHAT_URL = "https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=dcaff135-7274-4581-bb0a-25ea26b62d72";
 
 function timeAgo(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -315,10 +312,10 @@ export default function HurricaneSidebar({
             </button>
           </div>
           <div className="flex-1 min-h-0 p-4">
-            <ContentIQWidget
-              agentId={HURRICANE_AGENT_ID}
-              token={HURRICANE_AGENT_TOKEN}
-              style={{ height: "100%", borderRadius: 12 }}
+            <iframe
+              src={HURRICANE_CHAT_URL}
+              style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
+              allow="microphone"
             />
           </div>
         </div>
