@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Wind, AlertTriangle, MessageSquare, X, ChevronRight, Newspaper, ClipboardCopy, Check, ChevronDown } from "lucide-react";
 import type { HurricaneStorm, HurricaneAlert } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel, getThreatLevel } from "@/lib/hurricane-api";
@@ -183,6 +183,8 @@ export default function HurricaneSidebar({
 }: SidebarProps) {
   const [activeTab, setActiveTab] = useState<"intel" | "chat">("intel");
   const [copied, setCopied] = useState(false);
+  const [sentQ, setSentQ] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(true);
   const [newsSource, setNewsSource] = useState<"live" | "fallback" | null>(null);
@@ -205,6 +207,15 @@ export default function HurricaneSidebar({
   useEffect(() => {
     loadNews();
   }, [loadNews]);
+
+  const sendQuestion = (q: string) => {
+    iframeRef.current?.contentWindow?.postMessage({ type: "user-message", text: q }, "*");
+    iframeRef.current?.contentWindow?.postMessage({ type: "sendMessage", message: q }, "*");
+    iframeRef.current?.contentWindow?.postMessage({ content: q, role: "user" }, "*");
+    navigator.clipboard.writeText(q).catch(() => {});
+    setSentQ(q);
+    setTimeout(() => setSentQ(null), 2500);
+  };
 
   const copyContext = () => {
     const lines: string[] = [
@@ -463,8 +474,34 @@ export default function HurricaneSidebar({
               </button>
             </div>
           </div>
+          {/* Quick question pills */}
+          <div className="flex-shrink-0 px-4 py-2 flex flex-wrap gap-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            {buildHurricaneQuestions(storms, alerts, wind).map((item) => (
+              <button
+                key={item.q}
+                onClick={() => sendQuestion(item.q)}
+                className="px-2.5 py-1 rounded-full text-[10px] font-medium transition-all duration-150 hover:bg-white/10 active:scale-95"
+                style={{
+                  background: "rgba(0,196,228,0.07)",
+                  border: "1px solid rgba(0,196,228,0.18)",
+                  color: "hsl(191 80% 60%)",
+                }}
+              >
+                {item.q}
+              </button>
+            ))}
+          </div>
+          {sentQ && (
+            <div className="flex-shrink-0 flex items-center justify-center py-1.5">
+              <span className="text-[10px] font-medium px-3 py-1 rounded-full"
+                style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" }}>
+                Copied — paste into chat ↓
+              </span>
+            </div>
+          )}
           <div className="flex-1 min-h-0 p-4">
             <iframe
+              ref={iframeRef}
               src={HURRICANE_CHAT_URL}
               style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
               allow="microphone"
