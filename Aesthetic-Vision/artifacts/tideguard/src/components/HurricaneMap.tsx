@@ -373,7 +373,7 @@ function StaticFloodZoneLayer() {
 }
 
 // ── Xweather / Aeris Radar Tile Layer ──
-const AERIS_CREDS = "Wc6RaI38IgQeHJnZy2dlm_zW9YYTMpyDdgaiG0TDUAU06HLu1S4p09WZQG4nJj";
+const AERIS_CREDS = "cPGg0QrhyIYBgkuNI4t1E_Xnq1iKNj3Vhry4JIHtJetnwlAkbgzjZj3GHPcxEe";
 const RADAR_FRAMES = ["-120min", "-90min", "-60min", "-30min", "current"] as const;
 const FRAME_LABELS = ["-2h", "-90m", "-60m", "-30m", "LIVE"] as const;
 
