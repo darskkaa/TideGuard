@@ -38,7 +38,7 @@ export default function WeatherWidget({ lat, lng }: WeatherWidgetProps) {
 
   return (
     <div
-      className="absolute bottom-6 right-6 z-[999] rounded-xl p-4 backdrop-blur-xl transition-all duration-300"
+      className="absolute bottom-16 right-14 z-[999] rounded-xl p-4 backdrop-blur-xl transition-all duration-300"
       style={{
         background: "rgba(6, 12, 22, 0.85)",
         border: "1px solid rgba(0, 196, 228, 0.15)",
