@@ -24,7 +24,7 @@ function MapResizer({ isMobile }: { isMobile: boolean }) {
 import type { HurricaneStorm } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel } from "@/lib/hurricane-api";
 import type { WindData } from "@/lib/wind-api";
-import { Droplets, MapPin, Home, Layers, Car } from "lucide-react";
+import { Droplets, MapPin, Home, Layers, CloudRain } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const CENTER: [number, number] = [26.4, -82.0]; // SW Florida focus
@@ -137,30 +137,36 @@ const EVAC_ZONES: Array<{ zone: string; label: string; color: string; positions:
 // ── Map Overlay Toggle Controls ──
 function OverlayControls({
   showFlood,
-  showRoads,
+  showRadar,
   showEvac,
   showShelters,
+  isPlaying,
+  frameLabel,
   onToggleFlood,
-  onToggleRoads,
+  onToggleRadar,
+  onTogglePlay,
   onToggleEvac,
   onToggleShelters,
 }: {
   showFlood: boolean;
-  showRoads: boolean;
+  showRadar: boolean;
   showEvac: boolean;
   showShelters: boolean;
+  isPlaying: boolean;
+  frameLabel: string;
   onToggleFlood: () => void;
-  onToggleRoads: () => void;
+  onToggleRadar: () => void;
+  onTogglePlay: () => void;
   onToggleEvac: () => void;
   onToggleShelters: () => void;
 }) {
   const isMobile = useIsMobile();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const anyActive = showFlood || showRoads || showEvac || showShelters;
+  const anyActive = showFlood || showRadar || showEvac || showShelters;
 
   const items = [
+    { label: "Live Radar", active: showRadar, onClick: onToggleRadar, color: "#60a5fa", icon: CloudRain },
     { label: "Flood Zones", active: showFlood, onClick: onToggleFlood, color: "#3b82f6", icon: Droplets },
-    { label: "Road Conditions", active: showRoads, onClick: onToggleRoads, color: "#a855f7", icon: Car },
     { label: "Evacuation", active: showEvac, onClick: onToggleEvac, color: "#f97316", icon: MapPin },
     { label: "Shelters", active: showShelters, onClick: onToggleShelters, color: "#22c55e", icon: Home },
   ];
@@ -196,6 +202,22 @@ function OverlayControls({
           {label}
         </button>
       ))}
+      {showRadar && (
+        <div className="flex items-center gap-2 px-2 pt-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <button
+            onClick={onTogglePlay}
+            className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 transition-all"
+            style={{ background: isPlaying ? "rgba(96,165,250,0.2)" : "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.3)" }}
+          >
+            {isPlaying
+              ? <div style={{ width: 6, height: 6, background: "#60a5fa", borderRadius: 1 }} />
+              : <svg width="8" height="8" viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9" fill="#60a5fa" /></svg>
+            }
+          </button>
+          <span className="text-[10px] font-mono font-bold" style={{ color: "#60a5fa", minWidth: 28 }}>{frameLabel}</span>
+          {!isPlaying && <span className="text-[9px] text-muted-foreground">2hr loop</span>}
+        </div>
+      )}
     </>
   );
 
@@ -350,65 +372,20 @@ function StaticFloodZoneLayer() {
   );
 }
 
-// ── Road Conditions Layer (Xweather) ──
-interface RoadPoint {
-  id: string; name: string; lat: number; lng: number;
-  status: string; statusPhrase: string;
-  surface: string; surfacePhrase: string;
-  tempF: number | null; summary: string | null;
-}
+// ── Xweather / Aeris Radar Tile Layer ──
+const AERIS_CREDS = "Wc6RaI38IgQeHJnZy2dlm_zW9YYTMpyDdgaiG0TDUAU06HLu1S4p09WZQG4nJj";
+const RADAR_FRAMES = ["-120min", "-90min", "-60min", "-30min", "current"] as const;
+const FRAME_LABELS = ["-2h", "-90m", "-60m", "-30m", "LIVE"] as const;
 
-function roadStatusColor(status: string) {
-  if (status === "green") return "#22c55e";
-  if (status === "yellow") return "#f59e0b";
-  if (status === "red") return "#ef4444";
-  return "#64748b";
-}
-
-function RoadConditionsLayer() {
-  const map = useMap();
-  useEffect(() => {
-    const markers: L.Marker[] = [];
-    let cancelled = false;
-
-    fetch("/api/road-conditions")
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled || !Array.isArray(data.points)) return;
-        (data.points as RoadPoint[]).forEach((pt) => {
-          const color = roadStatusColor(pt.status);
-          const icon = L.divIcon({
-            className: "",
-            html: `<div style="background:${color};border:2px solid rgba(255,255,255,0.85);border-radius:5px;padding:2px 5px;font-size:9px;font-weight:800;color:#fff;font-family:monospace;letter-spacing:0.03em;box-shadow:0 2px 8px rgba(0,0,0,0.5);white-space:nowrap">${pt.surfacePhrase.toUpperCase()}</div>`,
-            iconSize: [60, 18],
-            iconAnchor: [30, 9],
-          });
-          const marker = L.marker([pt.lat, pt.lng], { icon });
-          marker.bindPopup(
-            `<div style="background:hsl(216 32% 8%);border:1px solid hsl(213 35% 14%);border-radius:8px;padding:10px 12px;color:#e2e8f0;font-family:Inter,sans-serif;font-size:12px;min-width:180px">
-              <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
-                <div style="width:10px;height:10px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color};flex-shrink:0"></div>
-                <span style="font-weight:700;font-size:13px;color:${color}">${pt.statusPhrase}</span>
-              </div>
-              <div style="color:#94a3b8;font-size:11px;margin-bottom:4px">${pt.name}</div>
-              <div style="font-size:11px;margin-bottom:2px">Surface: <strong style="color:#e2e8f0">${pt.surfacePhrase}</strong></div>
-              ${pt.tempF !== null ? `<div style="color:#94a3b8;font-size:11px">Road temp: ${pt.tempF}°F</div>` : ""}
-              ${pt.summary ? `<div style="color:#64748b;font-size:10px;margin-top:5px;font-style:italic">${pt.summary}</div>` : ""}
-            </div>`,
-            { className: "leaflet-popup-custom" }
-          );
-          marker.addTo(map);
-          markers.push(marker);
-        });
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-      markers.forEach((m) => { try { map.removeLayer(m); } catch {} });
-    };
-  }, [map]);
-  return null;
+function RadarTileLayer({ frame }: { frame: string }) {
+  return (
+    <TileLayer
+      key={frame}
+      url={`https://maps1.aerisapi.com/${AERIS_CREDS}/radar/{z}/{x}/{y}/${frame}.png`}
+      opacity={0.72}
+      zIndex={200}
+    />
+  );
 }
 
 function MapFlyTo({ storms }: { storms: HurricaneStorm[] }) {
@@ -549,9 +526,28 @@ function LoadingOverlay({ show }: { show: boolean }) {
 export default function HurricaneMap({ storms, wind: _wind, loading, onCenterChange }: Props) {
   const isMobile = useIsMobile();
   const [showFlood, setShowFlood] = useState(false);
-  const [showRoads, setShowRoads] = useState(false);
+  const [showRadar, setShowRadar] = useState(false);
   const [showEvac, setShowEvac] = useState(false);
   const [showShelters, setShowShelters] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [frameIndex, setFrameIndex] = useState(RADAR_FRAMES.length - 1);
+  const playTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (isPlaying) {
+      playTimerRef.current = setInterval(() => {
+        setFrameIndex((i) => (i + 1) % RADAR_FRAMES.length);
+      }, 700);
+    } else {
+      if (playTimerRef.current) clearInterval(playTimerRef.current);
+      setFrameIndex(RADAR_FRAMES.length - 1);
+    }
+    return () => { if (playTimerRef.current) clearInterval(playTimerRef.current); };
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (!showRadar) { setIsPlaying(false); setFrameIndex(RADAR_FRAMES.length - 1); }
+  }, [showRadar]);
 
   return (
     <div className="relative w-full h-full">
@@ -568,8 +564,8 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
           maxZoom={19}
         />
 
+        {showRadar && <RadarTileLayer frame={RADAR_FRAMES[frameIndex]} />}
         {showFlood && <StaticFloodZoneLayer />}
-        {showRoads && <RoadConditionsLayer />}
         {showEvac && <EvacZonePolygons />}
         {showShelters && <ShelterMarkers />}
 
@@ -581,11 +577,14 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
 
       <OverlayControls
         showFlood={showFlood}
-        showRoads={showRoads}
+        showRadar={showRadar}
         showEvac={showEvac}
         showShelters={showShelters}
+        isPlaying={isPlaying}
+        frameLabel={FRAME_LABELS[frameIndex]}
         onToggleFlood={() => setShowFlood(!showFlood)}
-        onToggleRoads={() => setShowRoads(!showRoads)}
+        onToggleRadar={() => setShowRadar(!showRadar)}
+        onTogglePlay={() => setIsPlaying(!isPlaying)}
         onToggleEvac={() => setShowEvac(!showEvac)}
         onToggleShelters={() => setShowShelters(!showShelters)}
       />
