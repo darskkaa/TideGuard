@@ -537,7 +537,7 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
     if (isPlaying) {
       playTimerRef.current = setInterval(() => {
         setFrameIndex((i) => (i + 1) % RADAR_FRAMES.length);
-      }, 700);
+      }, 1800);
     } else {
       if (playTimerRef.current) clearInterval(playTimerRef.current);
       setFrameIndex(RADAR_FRAMES.length - 1);
