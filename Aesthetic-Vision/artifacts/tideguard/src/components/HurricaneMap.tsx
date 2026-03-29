@@ -24,7 +24,7 @@ function MapResizer({ isMobile }: { isMobile: boolean }) {
 import type { HurricaneStorm } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel } from "@/lib/hurricane-api";
 import type { WindData } from "@/lib/wind-api";
-import { Droplets, MapPin, Home, Layers } from "lucide-react";
+import { Droplets, MapPin, Home, Layers, Car } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const CENTER: [number, number] = [26.4, -82.0]; // SW Florida focus
@@ -137,25 +137,30 @@ const EVAC_ZONES: Array<{ zone: string; label: string; color: string; positions:
 // ── Map Overlay Toggle Controls ──
 function OverlayControls({
   showFlood,
+  showRoads,
   showEvac,
   showShelters,
   onToggleFlood,
+  onToggleRoads,
   onToggleEvac,
   onToggleShelters,
 }: {
   showFlood: boolean;
+  showRoads: boolean;
   showEvac: boolean;
   showShelters: boolean;
   onToggleFlood: () => void;
+  onToggleRoads: () => void;
   onToggleEvac: () => void;
   onToggleShelters: () => void;
 }) {
   const isMobile = useIsMobile();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const anyActive = showFlood || showEvac || showShelters;
+  const anyActive = showFlood || showRoads || showEvac || showShelters;
 
   const items = [
     { label: "Flood Zones", active: showFlood, onClick: onToggleFlood, color: "#3b82f6", icon: Droplets },
+    { label: "Road Conditions", active: showRoads, onClick: onToggleRoads, color: "#a855f7", icon: Car },
     { label: "Evacuation", active: showEvac, onClick: onToggleEvac, color: "#f97316", icon: MapPin },
     { label: "Shelters", active: showShelters, onClick: onToggleShelters, color: "#22c55e", icon: Home },
   ];
@@ -298,63 +303,109 @@ function EvacZonePolygons() {
   );
 }
 
-// Flood zone color by FEMA designation
-function floodZoneColor(zone: string): string {
-  if (!zone) return "#3b82f6";
-  const z = zone.toUpperCase();
-  if (z.startsWith("V")) return "#dc2626";          // VE/V — coastal wave hazard (highest)
-  if (z === "A" || z === "AE" || z === "AH" || z === "AO" || z.startsWith("A1") || z.startsWith("AR")) return "#ef4444"; // 1% annual flood
-  if (z === "X500" || z === "B") return "#f59e0b";  // 0.2% annual flood
-  return "#3b82f6";                                  // other / minimal
+// ── Hardcoded SWFL FEMA Flood Zones (near-shore, no API) ──
+const STATIC_FLOOD_ZONES: Array<{
+  zone: string; label: string; color: string; positions: [number, number][];
+}> = [
+  { zone: "VE", label: "Fort Myers Beach", color: "#dc2626",
+    positions: [[26.507,-81.977],[26.507,-81.930],[26.364,-81.928],[26.364,-81.962]] },
+  { zone: "VE", label: "Sanibel Island", color: "#dc2626",
+    positions: [[26.537,-82.120],[26.537,-81.980],[26.433,-81.978],[26.433,-82.102]] },
+  { zone: "VE", label: "Boca Grande / Gasparilla Is.", color: "#dc2626",
+    positions: [[26.775,-82.375],[26.775,-82.320],[26.678,-82.318],[26.678,-82.368]] },
+  { zone: "AE", label: "Cape Coral Waterfront", color: "#ef4444",
+    positions: [[26.668,-82.095],[26.668,-82.000],[26.535,-81.998],[26.490,-82.015],[26.490,-82.068],[26.560,-82.092]] },
+  { zone: "AE", label: "Naples Coast", color: "#ef4444",
+    positions: [[26.195,-81.825],[26.195,-81.785],[26.075,-81.775],[26.055,-81.800],[26.055,-81.828]] },
+  { zone: "AE", label: "Marco Island", color: "#ef4444",
+    positions: [[25.978,-81.738],[25.978,-81.635],[25.902,-81.635],[25.902,-81.722]] },
+  { zone: "AE", label: "Punta Gorda / Charlotte Harbor", color: "#ef4444",
+    positions: [[26.960,-82.090],[26.960,-82.005],[26.900,-82.003],[26.900,-82.080]] },
+];
+
+function StaticFloodZoneLayer() {
+  return (
+    <>
+      {STATIC_FLOOD_ZONES.map((z, i) => (
+        <Polygon
+          key={`flood-${i}`}
+          positions={z.positions}
+          pathOptions={{ color: z.color, fillColor: z.color, fillOpacity: 0.20, weight: 1.5, opacity: 0.65, dashArray: "3 5" }}
+        >
+          <Popup>
+            <div style={popupStyle}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: z.color }}>
+                FEMA Zone {z.zone} — {z.label}
+              </div>
+              <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>
+                {z.zone === "VE"
+                  ? "Coastal high hazard — wave action + storm surge. Highest flood risk."
+                  : "Special flood hazard area — 1% annual flood risk. Insurance typically required."}
+              </div>
+            </div>
+          </Popup>
+        </Polygon>
+      ))}
+    </>
+  );
 }
 
+// ── Road Conditions Layer (Xweather) ──
+interface RoadPoint {
+  id: string; name: string; lat: number; lng: number;
+  status: string; statusPhrase: string;
+  surface: string; surfacePhrase: string;
+  tempF: number | null; summary: string | null;
+}
 
-function FloodZoneLayer() {
+function roadStatusColor(status: string) {
+  if (status === "green") return "#22c55e";
+  if (status === "yellow") return "#f59e0b";
+  if (status === "red") return "#ef4444";
+  return "#64748b";
+}
+
+function RoadConditionsLayer() {
   const map = useMap();
   useEffect(() => {
-    let layer: L.GeoJSON | null = null;
+    const markers: L.Marker[] = [];
     let cancelled = false;
 
-    // Single call — FEMA NFHL via proxy (free, no API key required)
-    fetch("/api/flood-zones")
+    fetch("/api/road-conditions")
       .then((r) => r.json())
       .then((data) => {
-        if (cancelled || !Array.isArray(data.features)) return;
-        layer = L.geoJSON(data as Parameters<typeof L.geoJSON>[0], {
-          style: (feature) => {
-            const zone: string = feature?.properties?.FLD_ZONE ?? "";
-            const color = floodZoneColor(zone);
-            return {
-              color,
-              fillColor: color,
-              fillOpacity: 0.22,
-              weight: 1.2,
-              opacity: 0.7,
-            };
-          },
-          onEachFeature: (feature, lyr) => {
-            const zone = feature?.properties?.FLD_ZONE ?? "Unknown";
-            lyr.bindPopup(
-              `<div style="background:hsl(216 32% 8%);border:1px solid hsl(213 35% 14%);border-radius:8px;padding:10px 12px;color:#e2e8f0;font-family:Inter,sans-serif;font-size:12px;min-width:140px">
-                <strong style="color:${floodZoneColor(zone)}">FEMA Zone ${zone}</strong>
-                <div style="color:#94a3b8;font-size:11px;margin-top:4px">
-                  ${zone.startsWith("V") ? "Coastal high-hazard — wave action + flooding" :
-                    zone === "AE" || zone === "A" ? "1% annual flood risk — NFIP required" :
-                    zone === "X" || zone === "B" || zone === "C" ? "Minimal to moderate flood risk" :
-                    "Flood zone boundary"}
-                </div>
-              </div>`,
-              { className: "leaflet-popup-custom" }
-            );
-          },
+        if (cancelled || !Array.isArray(data.points)) return;
+        (data.points as RoadPoint[]).forEach((pt) => {
+          const color = roadStatusColor(pt.status);
+          const icon = L.divIcon({
+            className: "",
+            html: `<div style="background:${color};border:2px solid rgba(255,255,255,0.85);border-radius:5px;padding:2px 5px;font-size:9px;font-weight:800;color:#fff;font-family:monospace;letter-spacing:0.03em;box-shadow:0 2px 8px rgba(0,0,0,0.5);white-space:nowrap">${pt.surfacePhrase.toUpperCase()}</div>`,
+            iconSize: [60, 18],
+            iconAnchor: [30, 9],
+          });
+          const marker = L.marker([pt.lat, pt.lng], { icon });
+          marker.bindPopup(
+            `<div style="background:hsl(216 32% 8%);border:1px solid hsl(213 35% 14%);border-radius:8px;padding:10px 12px;color:#e2e8f0;font-family:Inter,sans-serif;font-size:12px;min-width:180px">
+              <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
+                <div style="width:10px;height:10px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color};flex-shrink:0"></div>
+                <span style="font-weight:700;font-size:13px;color:${color}">${pt.statusPhrase}</span>
+              </div>
+              <div style="color:#94a3b8;font-size:11px;margin-bottom:4px">${pt.name}</div>
+              <div style="font-size:11px;margin-bottom:2px">Surface: <strong style="color:#e2e8f0">${pt.surfacePhrase}</strong></div>
+              ${pt.tempF !== null ? `<div style="color:#94a3b8;font-size:11px">Road temp: ${pt.tempF}°F</div>` : ""}
+              ${pt.summary ? `<div style="color:#64748b;font-size:10px;margin-top:5px;font-style:italic">${pt.summary}</div>` : ""}
+            </div>`,
+            { className: "leaflet-popup-custom" }
+          );
+          marker.addTo(map);
+          markers.push(marker);
         });
-        layer.addTo(map);
       })
       .catch(() => {});
 
     return () => {
       cancelled = true;
-      if (layer) { try { map.removeLayer(layer); } catch {} }
+      markers.forEach((m) => { try { map.removeLayer(m); } catch {} });
     };
   }, [map]);
   return null;
@@ -498,6 +549,7 @@ function LoadingOverlay({ show }: { show: boolean }) {
 export default function HurricaneMap({ storms, wind: _wind, loading, onCenterChange }: Props) {
   const isMobile = useIsMobile();
   const [showFlood, setShowFlood] = useState(false);
+  const [showRoads, setShowRoads] = useState(false);
   const [showEvac, setShowEvac] = useState(false);
   const [showShelters, setShowShelters] = useState(false);
 
@@ -516,7 +568,8 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
           maxZoom={19}
         />
 
-        {showFlood && <FloodZoneLayer />}
+        {showFlood && <StaticFloodZoneLayer />}
+        {showRoads && <RoadConditionsLayer />}
         {showEvac && <EvacZonePolygons />}
         {showShelters && <ShelterMarkers />}
 
@@ -528,9 +581,11 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
 
       <OverlayControls
         showFlood={showFlood}
+        showRoads={showRoads}
         showEvac={showEvac}
         showShelters={showShelters}
         onToggleFlood={() => setShowFlood(!showFlood)}
+        onToggleRoads={() => setShowRoads(!showRoads)}
         onToggleEvac={() => setShowEvac(!showEvac)}
         onToggleShelters={() => setShowShelters(!showShelters)}
       />

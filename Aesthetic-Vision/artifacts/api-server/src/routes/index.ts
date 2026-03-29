@@ -6,7 +6,7 @@ import contentiqProxyRouter from "./contentiq-proxy";
 import hurricaneRouter from "./hurricane";
 import hurricaneNewsRouter from "./hurricane-news";
 import watsonxClaimsRouter from "./watsonx-claims";
-import floodZonesRouter from "./flood-zones";
+import roadConditionsRouter from "./road-conditions";
 
 const router: IRouter = Router();
 
@@ -17,6 +17,6 @@ router.use(contentiqProxyRouter);
 router.use(hurricaneRouter);
 router.use(hurricaneNewsRouter);
 router.use(watsonxClaimsRouter);
-router.use(floodZonesRouter);
+router.use(roadConditionsRouter);
 
 export default router;
