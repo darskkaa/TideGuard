@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
 import type { AbundanceLevel } from "@/lib/fwc-api";
+import ContentIQWidget from "@/components/ContentIQWidget";
+
+const RED_ALGAE_AGENT_ID = "1f1af1fb-c3fa-4286-b4aa-6a609d5c91e3";
+const RED_ALGAE_AGENT_TOKEN = "9ee484b45a15dcc3cef0206aabcea67c0b0d7577144bebb5b5e33662d6913319";
 
 function timeAgo(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -54,9 +58,6 @@ function WindRow({ wind }: { wind: WindData | null }) {
     </div>
   );
 }
-
-const CONTENTIQ_DEPLOYMENT_URL = import.meta.env.VITE_CONTENTIQ_DEPLOYMENT_URL ||
-  "https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=83e6c4e9-5428-474a-88f2-ca533af9eb4f";
 
 interface SidebarProps {
   articles: NewsArticle[];
@@ -379,22 +380,12 @@ export default function AnalysisSidebar({
                 )}
               </AnimatePresence>
 
-              {/* iframe — fills all remaining space */}
+              {/* ContentIQ Widget — fills all remaining space */}
               <div className="flex-1 min-h-0 px-3 pb-3 pt-2">
-                <iframe
-                  src={CONTENTIQ_DEPLOYMENT_URL}
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    border: "none",
-                    borderRadius: 12,
-                    backgroundColor: "rgba(255,255,255,0.02)",
-                    display: "block",
-                    colorScheme: "normal",
-                  }}
-                  allow="microphone; clipboard-read; clipboard-write"
-                  title="TideGuard AI Agent"
+                <ContentIQWidget
+                  agentId={RED_ALGAE_AGENT_ID}
+                  token={RED_ALGAE_AGENT_TOKEN}
+                  style={{ height: "100%", borderRadius: 12 }}
                 />
               </div>
             </div>
@@ -429,20 +420,10 @@ export default function AnalysisSidebar({
             </button>
           </div>
           <div className="flex-1 min-h-0 p-4">
-            <iframe
-              src={CONTENTIQ_DEPLOYMENT_URL}
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox"
-              style={{
-                width: "100%",
-                height: "100%",
-                border: "none",
-                borderRadius: 12,
-                backgroundColor: "rgba(255,255,255,0.02)",
-                display: "block",
-                colorScheme: "normal",
-              }}
-              allow="microphone; clipboard-read; clipboard-write"
-              title="TideGuard AI Agent"
+            <ContentIQWidget
+              agentId={RED_ALGAE_AGENT_ID}
+              token={RED_ALGAE_AGENT_TOKEN}
+              style={{ height: "100%", borderRadius: 12 }}
             />
           </div>
         </div>
