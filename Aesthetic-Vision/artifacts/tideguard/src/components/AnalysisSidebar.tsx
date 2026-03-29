@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wind, Newspaper, MessageSquare, X, ChevronRight, ClipboardCopy, Check } from "lucide-react";
+import { Wind, Newspaper, MessageSquare, X, ChevronRight, ClipboardCopy, Check, ChevronDown } from "lucide-react";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
 import type { AbundanceLevel } from "@/lib/fwc-api";
@@ -50,6 +50,123 @@ function WindRow({ wind }: { wind: WindData | null }) {
               : "Bloom dispersing away from shore"}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function buildQuestions(fwcLevel: AbundanceLevel, wind: WindData | null) {
+  const isOnshore = wind?.isOnshore ?? false;
+  const speed = wind?.speed ?? 0;
+
+  const bloomLabel: Record<AbundanceLevel, string> = {
+    not_present: "no active bloom detected",
+    low: "a low-level bloom is present",
+    medium: "a moderate bloom is present",
+    high: "a high-intensity bloom is active",
+  };
+
+  return [
+    {
+      q: "Is there red tide near me right now?",
+      a:
+        fwcLevel === "not_present"
+          ? "Current FWC sampling shows no active red tide bloom in Southwest Florida waters. Conditions are clear. Always check the FWC red tide map for your exact beach before heading out."
+          : fwcLevel === "low"
+          ? "FWC data shows a low-level Karenia brevis presence in the area. Sensitive individuals may experience mild eye or throat irritation near the shoreline. Healthy adults are generally not at risk."
+          : fwcLevel === "medium"
+          ? "A moderate red tide bloom is currently detected. Swimming is not recommended for sensitive groups. Dead fish and respiratory irritation may be present along the coast."
+          : "A high-intensity red tide bloom is active. Avoid the beach entirely. Respiratory irritation, dead fish, and shellfish closures are expected. Check FDOH advisories before visiting any Gulf Coast beach.",
+    },
+    {
+      q: "Will red tide come toward shore?",
+      a: isOnshore
+        ? `Wind is currently blowing ${wind?.directionLabel ?? "onshore"} at ${speed} km/h — this is pushing the bloom toward the coastline. Expect elevated toxin levels and respiratory irritation near shore. Conditions could worsen over the next 12–24 hours.`
+        : `Wind is blowing offshore at ${speed} km/h, dispersing the bloom away from the coast. Coastal impact is reduced right now, but conditions can shift quickly — monitor wind forecasts if you're planning a beach visit.`,
+    },
+    {
+      q: "Is it safe to swim today?",
+      a:
+        fwcLevel === "not_present"
+          ? "No bloom is currently detected. Swimming conditions are normal. Standard ocean safety rules still apply — watch for rip currents and marine life."
+          : fwcLevel === "low"
+          ? "Low-level bloom is present. Swimming is generally safe for healthy adults, but people with asthma, respiratory conditions, or skin sensitivities should avoid the water and beach area."
+          : fwcLevel === "medium"
+          ? "Moderate bloom detected — swimming is not recommended. You may experience skin irritation, eye burning, and respiratory symptoms. Rinse thoroughly if you do enter the water."
+          : "High bloom levels — do not swim. Red tide toxins can cause severe respiratory distress, especially for those with asthma or COPD. Leave the beach area and seek air-conditioned shelter if symptoms occur.",
+    },
+    {
+      q: "When is the best time for boating?",
+      a:
+        fwcLevel === "not_present"
+          ? "Conditions are clear — great time to be on the water. Standard boating safety applies. Check NOAA marine forecasts before departure."
+          : isOnshore
+          ? `Red tide is onshore with ${wind?.directionLabel ?? "onshore"} winds. Stay offshore in open water to avoid bloom concentrations near the coast. Avoid anchoring in shallow coastal areas. Those with respiratory sensitivities should skip boating today.`
+          : `Wind is ${wind?.directionLabel ?? "offshore"} — the bloom is moving away from shore, making nearshore boating more tolerable. Open-water conditions are better, but a ${bloomLabel[fwcLevel]} may still affect low-lying anchorages.`,
+    },
+    {
+      q: "Can I eat shellfish from the Gulf?",
+      a: "Do not harvest or eat wild shellfish (clams, oysters, mussels, scallops) from Florida Gulf waters during any red tide event. Karenia brevis toxins (brevetoxins) accumulate in filter feeders and are not destroyed by cooking. FDACS issues shellfish harvesting closures — check fdacs.gov before harvesting. Restaurant-sourced shellfish from commercial aquaculture is tested and generally safe.",
+    },
+    {
+      q: "What are red tide symptoms?",
+      a: "On the beach: burning or watery eyes, runny nose, coughing, sneezing, and throat irritation — symptoms appear within minutes and clear when you leave. In the water: skin rash, stinging sensations. If ingested via contaminated shellfish: nausea, vomiting, tingling lips and limbs (Neurotoxic Shellfish Poisoning). Seek medical attention if symptoms are severe or do not resolve after leaving the beach.",
+    },
+    {
+      q: "What causes red tide?",
+      a: "Florida red tide is caused by Karenia brevis, a naturally occurring microscopic algae in the Gulf of Mexico. Blooms form offshore when warm water, sunlight, and nutrient-rich conditions align. Wind and currents then carry them to the coast. While natural, blooms can be intensified by nutrient runoff from fertilizers and wastewater. They typically peak in late summer through fall.",
+    },
+    {
+      q: "How long does red tide last?",
+      a: "Individual blooms can persist for weeks to months depending on wind, water temperature, and currents. The 2017–2019 Southwest Florida bloom lasted over 15 months. Offshore blooms may dissipate faster. There is no way to remove or end a bloom — conditions improve only when natural factors like wind shifts, cooling water, or dilution break it up.",
+    },
+  ];
+}
+
+function CommonQuestions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: WindData | null }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const questions = buildQuestions(fwcLevel, wind);
+
+  return (
+    <div className="px-4 pb-3">
+      <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-2">Common Questions</div>
+      <div className="space-y-1">
+        {questions.map((item, i) => (
+          <div
+            key={i}
+            className="rounded-xl overflow-hidden"
+            style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
+          >
+            <button
+              onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              className="w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-white/5"
+            >
+              <span className="text-[11px] font-medium pr-2" style={{ color: "hsl(210 30% 78%)" }}>
+                {item.q}
+              </span>
+              <ChevronDown
+                size={12}
+                className="flex-shrink-0 transition-transform duration-150"
+                style={{
+                  color: "hsl(210 18% 45%)",
+                  transform: openIndex === i ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </button>
+            {openIndex === i && (
+              <div
+                className="px-3 pb-3 text-[11px] leading-relaxed"
+                style={{
+                  color: "hsl(210 15% 60%)",
+                  borderTop: "1px solid rgba(255,255,255,0.04)",
+                  paddingTop: 8,
+                }}
+              >
+                {item.a}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -170,6 +287,9 @@ export default function AnalysisSidebar({
               <div className="flex-shrink-0 pt-3">
                 <WindRow wind={wind} />
               </div>
+
+              {/* Common Questions */}
+              <CommonQuestions fwcLevel={fwcLevel} wind={wind} />
 
               {/* Articles — scrollable */}
               <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-3">
