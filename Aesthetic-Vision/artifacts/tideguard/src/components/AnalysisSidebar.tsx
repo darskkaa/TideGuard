@@ -400,21 +400,26 @@ export function RedTideChatOverlay({
           </button>
         </div>
       </div>
-      <div className="flex-shrink-0 px-4 py-2 flex flex-wrap gap-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-        {buildQuestions(fwcLevel, wind).map((item) => (
-          <button
-            key={item.q}
-            onClick={() => sendQuestion(item.q)}
-            className="px-2.5 py-1 rounded-full text-[10px] font-medium transition-all duration-150 hover:bg-white/10 active:scale-95"
-            style={{
-              background: "rgba(0,196,228,0.07)",
-              border: "1px solid rgba(0,196,228,0.18)",
-              color: "hsl(191 80% 60%)",
-            }}
-          >
-            {item.q}
-          </button>
-        ))}
+      <div className="flex-shrink-0 px-4 py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        <div
+          className="flex gap-1.5 overflow-x-auto pb-0.5"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {buildQuestions(fwcLevel, wind).map((item) => (
+            <button
+              key={item.q}
+              onClick={() => sendQuestion(item.q)}
+              className="flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-medium transition-all duration-150 hover:bg-white/10 active:scale-95"
+              style={{
+                background: "rgba(0,196,228,0.07)",
+                border: "1px solid rgba(0,196,228,0.18)",
+                color: "hsl(191 80% 60%)",
+              }}
+            >
+              {item.q}
+            </button>
+          ))}
+        </div>
       </div>
       {sentQ && (
         <div className="flex-shrink-0 flex items-center justify-center py-1.5">
@@ -424,11 +429,11 @@ export function RedTideChatOverlay({
           </span>
         </div>
       )}
-      <div className="flex-1 min-h-0 p-4">
+      <div className="flex-1 min-h-0 overflow-hidden" style={{ padding: 16 }}>
         <iframe
           ref={iframeRef}
           src={RED_ALGAE_CHAT_URL}
-          style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
+          style={{ width: "100%", height: "100%", border: "none", borderRadius: 12, display: "block" }}
           allow="microphone"
         />
       </div>
