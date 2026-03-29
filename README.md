@@ -94,7 +94,7 @@ On screens under 768px, both dashboards switch to a full-screen map layout. A fi
 | Hurricane tracks | NOAA National Hurricane Center | None |
 | Weather alerts | NOAA Weather API | None |
 | Animated radar | Xweather / AerisWeather tile API | App ID + Secret |
-| Hurricane news | NewsAPI v2 | API key (curated fallback included) |
+| Hurricane news | NewsAPI v2 | API key (curated articles included) |
 | Flood zones | Hardcoded FEMA NFHL designations, SWFL | None |
 | AI chat | IBM watsonx + ContentIQ | Deployment URL |
 
@@ -127,16 +127,13 @@ PORT=3001
 XWEATHER_CLIENT_ID=your_client_id
 XWEATHER_CLIENT_SECRET=your_client_secret
 
-# NewsAPI — optional, falls back to curated articles if omitted
+# NewsAPI — optional, curated articles included if omitted
 NEWS_API_KEY=your_newsapi_key
 
 # IBM watsonx — optional, insurance claims AI
 IBM_WATSONX_API_KEY=
 IBM_WATSONX_PROJECT_ID=
 IBM_WATSONX_URL=https://us-south.ml.cloud.ibm.com
-
-# ElevenLabs TTS — optional
-ELEVENLABS_API_KEY=
 ```
 
 ### 3. Configure the frontend
@@ -195,9 +192,8 @@ Most of the app works without any API keys. The following features require addit
 | Feature | Required key | Behavior without it |
 |---|---|---|
 | Animated radar overlay | Xweather credentials | Layer toggle shows, tiles return 403 |
-| Hurricane news feed | NewsAPI key | Falls back to 8 curated hardcoded articles |
-| Insurance claims AI | IBM watsonx credentials | Falls back to rule-based risk estimate |
-| Text-to-speech | ElevenLabs API key | TTS endpoint returns 500, rest of app unaffected |
+| Hurricane news feed | NewsAPI key | Serves 8 curated articles instead |
+| Insurance claims AI | IBM watsonx credentials | Rule-based risk estimate used instead |
 
 ---
 
@@ -229,11 +225,10 @@ Aesthetic-Vision/artifacts/
     └── src/routes/
         ├── hurricane.ts              # NOAA NHC proxy
         ├── news.ts                   # Curated red tide articles endpoint
-        ├── hurricane-news.ts         # NewsAPI + fallback
+        ├── hurricane-news.ts         # NewsAPI + curated articles
         ├── road-conditions.ts        # Xweather road weather proxy
-        ├── tts.ts                    # ElevenLabs TTS proxy
         ├── watsonx-claims.ts         # IBM watsonx insurance claims
-        └── flood-zones.ts            # National Flood Data API proxy
+        └── flood-zones.ts            # Hardcoded FEMA flood zone data
 ```
 
 ---
@@ -247,7 +242,6 @@ Aesthetic-Vision/artifacts/
 | GET | `/api/hurricane-news` | Hurricane articles (NewsAPI + fallback) |
 | GET | `/api/hurricane/storms` | NOAA NHC active storms |
 | GET | `/api/road-conditions` | Xweather road conditions (6 SWFL roads) |
-| POST | `/api/tts` | ElevenLabs TTS audio generation |
 | POST | `/api/watsonx-claims` | IBM watsonx insurance claim assessment |
 
 ---
