@@ -114,25 +114,30 @@ function StormImpactModel({ storms }: { storms: HurricaneStorm[] }) {
         Est. Power Outages — {storm.name} at Cat {storm.category}
       </div>
       <div className="space-y-1">
-        {IMPACT_COUNTIES.map(({ name, customers }) => {
-          const estLo = Math.round(customers * lo / 100);
-          const estHi = Math.round(customers * hi / 100);
-          const pct = (lo + hi) / 2;
-          return (
-            <div key={name} className="flex items-center gap-2">
-              <span className="text-[10px] text-muted-foreground w-16 flex-shrink-0">{name} Co.</span>
-              <div className="flex-1 h-1.5 rounded-full overflow-hidden"
-                style={{ background: "rgba(255,255,255,0.06)" }}>
-                <div className="h-full rounded-full transition-all"
-                  style={{ width: `${pct}%`, background: dmg.color }} />
+        {(() => {
+          const mid = (lo + hi) / 2;
+          const maxEst = Math.max(...IMPACT_COUNTIES.map(c => c.customers * mid / 100));
+          return IMPACT_COUNTIES.map(({ name, customers }) => {
+            const estLo = Math.round(customers * lo / 100);
+            const estHi = Math.round(customers * hi / 100);
+            const estMid = customers * mid / 100;
+            const pct = Math.round((estMid / maxEst) * 100);
+            return (
+              <div key={name} className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground w-16 flex-shrink-0">{name} Co.</span>
+                <div className="flex-1 h-1.5 rounded-full overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.06)" }}>
+                  <div className="h-full rounded-full transition-all"
+                    style={{ width: `${pct}%`, background: dmg.color }} />
+                </div>
+                <span className="text-[10px] font-medium flex-shrink-0 w-20 text-right"
+                  style={{ color: "hsl(210 30% 65%)" }}>
+                  {estLo}k–{estHi}k
+                </span>
               </div>
-              <span className="text-[10px] font-medium flex-shrink-0 w-20 text-right"
-                style={{ color: "hsl(210 30% 65%)" }}>
-                {estLo}k–{estHi}k
-              </span>
-            </div>
-          );
-        })}
+            );
+          });
+        })()}
       </div>
     </div>
   );
