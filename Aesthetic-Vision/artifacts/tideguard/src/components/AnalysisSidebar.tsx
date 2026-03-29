@@ -383,6 +383,7 @@ export default function AnalysisSidebar({
               <div className="flex-1 min-h-0 px-3 pb-3 pt-2">
                 <iframe
                   src={CONTENTIQ_DEPLOYMENT_URL}
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -390,8 +391,9 @@ export default function AnalysisSidebar({
                     borderRadius: 12,
                     backgroundColor: "rgba(255,255,255,0.02)",
                     display: "block",
+                    colorScheme: "normal",
                   }}
-                  allow="microphone"
+                  allow="microphone; clipboard-read; clipboard-write"
                   title="TideGuard AI Agent"
                 />
               </div>
@@ -429,6 +431,7 @@ export default function AnalysisSidebar({
           <div className="flex-1 min-h-0 p-4">
             <iframe
               src={CONTENTIQ_DEPLOYMENT_URL}
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-popups-to-escape-sandbox"
               style={{
                 width: "100%",
                 height: "100%",
@@ -436,8 +439,9 @@ export default function AnalysisSidebar({
                 borderRadius: 12,
                 backgroundColor: "rgba(255,255,255,0.02)",
                 display: "block",
+                colorScheme: "normal",
               }}
-              allow="microphone"
+              allow="microphone; clipboard-read; clipboard-write"
               title="TideGuard AI Agent"
             />
           </div>
