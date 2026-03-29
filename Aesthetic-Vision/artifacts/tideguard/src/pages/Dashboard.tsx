@@ -69,9 +69,6 @@ function TopBar({
             </div>
             <div>
               <div className="text-sm font-bold tracking-tight text-foreground">TideGuard</div>
-              <div className="text-[10px] text-muted-foreground leading-none font-mono">
-                SW Florida Gulf Coast · Karenia brevis Monitor
-              </div>
             </div>
           </div>
 

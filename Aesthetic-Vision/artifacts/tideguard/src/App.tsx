@@ -19,7 +19,7 @@ function NavToggle() {
     <div
       style={{
         position: "fixed",
-        top: 68,
+        top: 76,
         left: 16,
         zIndex: 9998,
         display: "flex",

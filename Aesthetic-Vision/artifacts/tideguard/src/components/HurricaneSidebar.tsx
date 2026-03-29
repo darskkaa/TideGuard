@@ -123,7 +123,7 @@ function HurricaneCommonQuestions({ storms, alerts, wind }: { storms: HurricaneS
 
   return (
     <div className="px-4 pb-3">
-      <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-2">Common Questions</div>
+      <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Common Questions</div>
       <div className="space-y-1">
         {questions.map((item, i) => (
           <div
@@ -135,7 +135,7 @@ function HurricaneCommonQuestions({ storms, alerts, wind }: { storms: HurricaneS
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
               className="w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-white/5"
             >
-              <span className="text-[11px] font-medium pr-2" style={{ color: "hsl(210 30% 78%)" }}>
+              <span className="text-xs font-medium pr-2" style={{ color: "hsl(210 30% 78%)" }}>
                 {item.q}
               </span>
               <ChevronDown
@@ -149,7 +149,7 @@ function HurricaneCommonQuestions({ storms, alerts, wind }: { storms: HurricaneS
             </button>
             {openIndex === i && (
               <div
-                className="px-3 pb-3 text-[11px] leading-relaxed"
+                className="px-3 pb-3 text-xs leading-relaxed"
                 style={{
                   color: "hsl(210 15% 60%)",
                   borderTop: "1px solid rgba(255,255,255,0.04)",
@@ -273,7 +273,7 @@ export default function HurricaneSidebar({
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
                 style={{
                   background: activeTab === id ? "rgba(0,196,228,0.12)" : "transparent",
                   color: activeTab === id ? "hsl(191 90% 46%)" : "hsl(210 18% 55%)",
@@ -336,7 +336,7 @@ export default function HurricaneSidebar({
 
                   {/* Storms */}
                   <div className="px-4 pb-2">
-                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-2">Active Storms</div>
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Active Storms</div>
                     {storms.length === 0 ? (
                       <div className="rounded-xl p-3 text-center"
                         style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
@@ -350,7 +350,7 @@ export default function HurricaneSidebar({
                   {/* Alerts */}
                   {alerts.length > 0 && (
                     <div className="px-4 pb-2">
-                      <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-2">Active Warnings</div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Active Warnings</div>
                       {alerts.map((a) => <AlertBadge key={a.id} alert={a} />)}
                     </div>
                   )}
@@ -374,7 +374,7 @@ export default function HurricaneSidebar({
 
                   {/* Hurricane News Articles */}
                   <div className="px-4 pb-3">
-                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-2">Hurricane News</div>
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Hurricane News</div>
                     {articlesLoading ? (
                       <div className="space-y-2">
                         {[1, 2, 3].map((i) => (
@@ -408,14 +408,14 @@ export default function HurricaneSidebar({
                             <div className="flex items-start gap-2">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 mb-1">
-                                  <span className="text-[10px] font-semibold text-muted-foreground truncate">
+                                  <span className="text-[11px] font-semibold text-muted-foreground truncate">
                                     {article.source}
                                   </span>
-                                  <span className="text-[10px] text-muted-foreground/60 flex-shrink-0">
+                                  <span className="text-[11px] text-muted-foreground/60 flex-shrink-0">
                                     {timeAgo(article.publishedAt)}
                                   </span>
                                 </div>
-                                <div className="text-[11px] font-medium leading-tight line-clamp-2"
+                                <div className="text-xs font-medium leading-tight line-clamp-2"
                                   style={{ color: "hsl(210 30% 78%)" }}>
                                   {article.title}
                                 </div>

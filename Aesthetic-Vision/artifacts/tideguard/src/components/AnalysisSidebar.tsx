@@ -129,7 +129,7 @@ function CommonQuestions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: W
 
   return (
     <div className="px-4 pb-3">
-      <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-2">Common Questions</div>
+      <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Common Questions</div>
       <div className="space-y-1">
         {questions.map((item, i) => (
           <div
@@ -141,7 +141,7 @@ function CommonQuestions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: W
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
               className="w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-white/5"
             >
-              <span className="text-[11px] font-medium pr-2" style={{ color: "hsl(210 30% 78%)" }}>
+              <span className="text-xs font-medium pr-2" style={{ color: "hsl(210 30% 78%)" }}>
                 {item.q}
               </span>
               <ChevronDown
@@ -155,7 +155,7 @@ function CommonQuestions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: W
             </button>
             {openIndex === i && (
               <div
-                className="px-3 pb-3 text-[11px] leading-relaxed"
+                className="px-3 pb-3 text-xs leading-relaxed"
                 style={{
                   color: "hsl(210 15% 60%)",
                   borderTop: "1px solid rgba(255,255,255,0.04)",
@@ -247,7 +247,7 @@ export default function AnalysisSidebar({
         >
           <button
             onClick={() => setActiveTab("intel")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
             style={{
               background: activeTab === "intel" ? "rgba(0,196,228,0.12)" : "transparent",
               color: activeTab === "intel" ? "hsl(191 90% 46%)" : "hsl(210 18% 55%)",
@@ -259,7 +259,7 @@ export default function AnalysisSidebar({
           </button>
           <button
             onClick={() => setActiveTab("chat")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
             style={{
               background: activeTab === "chat" ? "rgba(0,196,228,0.12)" : "transparent",
               color: activeTab === "chat" ? "hsl(191 90% 46%)" : "hsl(210 18% 55%)",
@@ -345,14 +345,14 @@ export default function AnalysisSidebar({
                         <div className="flex items-start gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 mb-1">
-                              <span className="text-[10px] font-semibold truncate" style={{ color: "hsl(210 18% 55%)" }}>
+                              <span className="text-[11px] font-semibold truncate" style={{ color: "hsl(210 18% 55%)" }}>
                                 {article.source}
                               </span>
-                              <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                              <span className="text-[11px] text-muted-foreground flex-shrink-0">
                                 {timeAgo(article.publishedAt)}
                               </span>
                             </div>
-                            <div className="text-[11px] font-medium leading-tight line-clamp-2" style={{ color: "hsl(210 30% 78%)" }}>
+                            <div className="text-xs font-medium leading-tight line-clamp-2" style={{ color: "hsl(210 30% 78%)" }}>
                               {article.title}
                             </div>
                           </div>
