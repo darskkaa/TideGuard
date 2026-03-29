@@ -10,6 +10,7 @@ import {
 import type { FWCFeature } from "@/lib/fwc-api";
 import { getAbundanceLevel, getAbundanceColor, getAbundanceLabel } from "@/lib/fwc-api";
 import type { WindData } from "@/lib/wind-api";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CENTER: [number, number] = [26.9436, -82.1539];
 const ZOOM = 9;
@@ -98,7 +99,7 @@ function WindCompass({ wind }: { wind: WindData | null }) {
   );
 }
 
-function MapLegend() {
+function MapLegend({ isMobile }: { isMobile: boolean }) {
   const levels = [
     { label: "High Bloom", color: "#ef4444" },
     { label: "Medium", color: "#f59e0b" },
@@ -106,21 +107,21 @@ function MapLegend() {
     { label: "Not Present", color: "#3b82f6" },
   ];
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1000] pointer-events-none">
+    <div className={`absolute ${isMobile ? "bottom-20" : "bottom-8"} left-1/2 -translate-x-1/2 z-[1000] pointer-events-none ${isMobile ? "max-w-[calc(100vw-2rem)]" : ""}`}>
       <div
-        className="glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4"
+        className={`glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4 ${isMobile ? "overflow-x-auto whitespace-nowrap" : ""}`}
         style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}
       >
         {levels.map((l) => (
           <div key={l.label} className="flex items-center gap-1.5">
             <div
-              className="rounded-full"
+              className="rounded-full flex-shrink-0"
               style={{ width: 8, height: 8, background: l.color, boxShadow: `0 0 8px ${l.color}88` }}
             />
             <span className="text-[11px] text-muted-foreground font-medium">{l.label}</span>
           </div>
         ))}
-        <div className="w-px h-3 bg-border" />
+        <div className="w-px h-3 bg-border flex-shrink-0" />
         <span className="text-[11px] text-muted-foreground font-mono tracking-wide">FWC · LIVE</span>
       </div>
     </div>
@@ -227,6 +228,7 @@ function LoadingOverlay({ show }: { show: boolean }) {
 }
 
 export default function TideMap({ features, wind, loading, onCenterChange }: Props) {
+  const isMobile = useIsMobile();
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -245,8 +247,8 @@ export default function TideMap({ features, wind, loading, onCenterChange }: Pro
         <MapCenterTracker onCenterChange={onCenterChange} />
       </MapContainer>
 
-      <WindCompass wind={wind} />
-      <MapLegend />
+      {!isMobile && <WindCompass wind={wind} />}
+      <MapLegend isMobile={isMobile} />
       <LoadingOverlay show={loading} />
     </div>
   );

@@ -3,11 +3,17 @@ import { motion } from "framer-motion";
 import { Wind, RefreshCw, AlertTriangle, MapPin } from "lucide-react";
 import HurricaneMap from "@/components/HurricaneMap";
 import HurricaneSidebar from "@/components/HurricaneSidebar";
+import { HurricaneIntelContent, HurricaneChatOverlay } from "@/components/HurricaneSidebar";
 import WeatherWidget from "@/components/WeatherWidget";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchHurricaneData, getThreatLevel } from "@/lib/hurricane-api";
 import type { HurricaneStorm, HurricaneAlert } from "@/lib/hurricane-api";
 import { fetchWindData } from "@/lib/wind-api";
 import type { WindData } from "@/lib/wind-api";
+import type { NewsArticle } from "@/lib/news-api";
+import { fetchHurricaneNews } from "@/lib/hurricane-news-api";
 
 const CENTER_LAT = 25.5;
 const CENTER_LNG = -87.5;
@@ -19,6 +25,7 @@ function TopBar({
   onRefresh,
   refreshing,
   dataSource,
+  isMobile,
 }: {
   storms: HurricaneStorm[];
   wind: WindData | null;
@@ -26,6 +33,7 @@ function TopBar({
   onRefresh: () => void;
   refreshing: boolean;
   dataSource: "live" | "demo";
+  isMobile: boolean;
 }) {
   const threat = getThreatLevel(storms);
   const now = lastUpdated
@@ -34,7 +42,7 @@ function TopBar({
 
   return (
     <div className="absolute top-0 left-0 z-[1001] flex items-center gap-0"
-      style={{ width: "calc(100% - 380px)" }}>
+      style={{ width: isMobile ? "100%" : "calc(100% - 380px)" }}>
       <div className="w-full"
         style={{
           background: "rgba(6, 12, 22, 0.92)",
@@ -59,6 +67,17 @@ function TopBar({
                 Gulf of Mexico · NHC Hurricane Tracker
               </div>
             </div>
+          </div>
+
+          {/* Mobile-only compact threat badge */}
+          <div className="flex md:hidden items-center gap-2 px-2 py-1 rounded-full"
+            style={{ background: threat.color + "14", border: `1px solid ${threat.color}30` }}>
+            {threat.pulse && (
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: threat.color }} />
+            )}
+            <span className="text-[10px] font-bold tracking-wider" style={{ color: threat.color }}>
+              {threat.text}
+            </span>
           </div>
 
           {/* Center */}
@@ -103,7 +122,7 @@ function TopBar({
             <button
               onClick={onRefresh}
               disabled={refreshing}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              className="w-11 h-11 md:w-8 md:h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{
                 background: "rgba(255,255,255,0.04)",
                 border: "1px solid rgba(255,255,255,0.08)",
@@ -120,6 +139,8 @@ function TopBar({
 }
 
 export default function HurricaneDashboard() {
+  const isMobile = useIsMobile();
+  const [mobileTab, setMobileTab] = useState<"map" | "intel" | "chat">("map");
   const [storms, setStorms] = useState<HurricaneStorm[]>([]);
   const [alerts, setAlerts] = useState<HurricaneAlert[]>([]);
   const [dataSource, setDataSource] = useState<"live" | "demo">("demo");
@@ -130,6 +151,8 @@ export default function HurricaneDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [weatherCenter, setWeatherCenter] = useState({ lat: CENTER_LAT, lng: CENTER_LNG });
   const weatherTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [hArticles, setHArticles] = useState<NewsArticle[]>([]);
+  const [hArticlesLoading, setHArticlesLoading] = useState(true);
   const handleMapCenter = useCallback((lat: number, lng: number) => {
     if (weatherTimerRef.current) clearTimeout(weatherTimerRef.current);
     weatherTimerRef.current = setTimeout(() => setWeatherCenter({ lat, lng }), 800);
@@ -167,14 +190,29 @@ export default function HurricaneDashboard() {
     }
   }, []);
 
+  const loadHurricaneNews = useCallback(async () => {
+    setHArticlesLoading(true);
+    try {
+      const data = await fetchHurricaneNews();
+      setHArticles(data.articles);
+    } catch {
+      setHArticles([]);
+    } finally {
+      setHArticlesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadAll();
-  }, [loadAll]);
+    if (isMobile) loadHurricaneNews();
+  }, [loadAll, isMobile, loadHurricaneNews]);
+
+  const dataTimestamp = lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
   return (
     <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
       {/* Map */}
-      <div className="flex-1 relative" style={{ marginRight: 380 }}>
+      <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }}>
         <HurricaneMap storms={storms} wind={wind} loading={loading} onCenterChange={handleMapCenter} />
 
         <TopBar
@@ -184,6 +222,7 @@ export default function HurricaneDashboard() {
           onRefresh={loadAll}
           refreshing={refreshing}
           dataSource={dataSource}
+          isMobile={isMobile}
         />
 
         {error && !loading && (
@@ -204,17 +243,59 @@ export default function HurricaneDashboard() {
           </motion.div>
         )}
 
-        <WeatherWidget lat={weatherCenter.lat} lng={weatherCenter.lng} />
+        {!isMobile && <WeatherWidget lat={weatherCenter.lat} lng={weatherCenter.lng} />}
       </div>
 
-      {/* Sidebar */}
-      <HurricaneSidebar
-        storms={storms}
-        alerts={alerts}
-        wind={wind}
-        dataSource={dataSource}
-        dataTimestamp={lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
-      />
+      {/* Desktop sidebar */}
+      {!isMobile && (
+        <HurricaneSidebar
+          storms={storms}
+          alerts={alerts}
+          wind={wind}
+          dataSource={dataSource}
+          dataTimestamp={dataTimestamp}
+        />
+      )}
+
+      {/* Mobile: bottom drawer for intel */}
+      {isMobile && (
+        <>
+          <Drawer open={mobileTab === "intel"} onOpenChange={(open) => { if (!open) setMobileTab("map"); }}>
+            <DrawerContent className="z-[1100] border-t-white/10" style={{ background: "rgba(7,12,22,0.97)", maxHeight: "75vh" }}>
+              <DrawerTitle className="sr-only">Hurricane Intel</DrawerTitle>
+              <div className="overflow-y-auto" style={{ maxHeight: "70vh" }}>
+                <HurricaneIntelContent
+                  storms={storms}
+                  alerts={alerts}
+                  wind={wind}
+                  dataSource={dataSource}
+                  dataTimestamp={dataTimestamp}
+                  articles={hArticles}
+                  articlesLoading={hArticlesLoading}
+                />
+              </div>
+            </DrawerContent>
+          </Drawer>
+
+          {mobileTab === "chat" && (
+            <HurricaneChatOverlay
+              onClose={() => setMobileTab("map")}
+              storms={storms}
+              alerts={alerts}
+              wind={wind}
+              dataSource={dataSource}
+              dataTimestamp={dataTimestamp}
+              articles={hArticles}
+            />
+          )}
+
+          <MobileBottomNav
+            activeTab={mobileTab}
+            onTabChange={setMobileTab}
+            accentColor="#ef4444"
+          />
+        </>
+      )}
     </div>
   );
 }

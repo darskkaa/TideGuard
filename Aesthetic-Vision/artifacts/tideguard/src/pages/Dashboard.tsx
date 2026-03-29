@@ -3,7 +3,11 @@ import { motion } from "framer-motion";
 import { Shield, RefreshCw, AlertTriangle, MapPin } from "lucide-react";
 import TideMap from "@/components/TideMap";
 import AnalysisSidebar from "@/components/AnalysisSidebar";
+import { AnalysisIntelContent, RedTideChatOverlay } from "@/components/AnalysisSidebar";
 import WeatherWidget from "@/components/WeatherWidget";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { FWCFeature } from "@/lib/fwc-api";
 import { fetchFWCData, getHighestThreatLevel, getAbundanceLabel } from "@/lib/fwc-api";
 import type { WindData } from "@/lib/wind-api";
@@ -29,6 +33,7 @@ function TopBar({
   lastUpdated,
   onRefresh,
   refreshing,
+  isMobile,
 }: {
   fwcLevel: AbundanceLevel;
   featureCount: number;
@@ -36,6 +41,7 @@ function TopBar({
   lastUpdated: Date | null;
   onRefresh: () => void;
   refreshing: boolean;
+  isMobile: boolean;
 }) {
   const risk = RISK_HEADER[fwcLevel] ?? RISK_HEADER.not_present;
   const now = lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—";
@@ -43,7 +49,7 @@ function TopBar({
   return (
     <div
       className="absolute top-0 left-0 z-[1001] flex items-center gap-0"
-      style={{ width: "calc(100% - 380px)" }}
+      style={{ width: isMobile ? "100%" : "calc(100% - 380px)" }}
     >
       <div
         className="w-full"
@@ -70,6 +76,17 @@ function TopBar({
             <div>
               <div className="text-sm font-bold tracking-tight text-foreground">TideGuard</div>
             </div>
+          </div>
+
+          {/* Mobile-only compact threat badge */}
+          <div className="flex md:hidden items-center gap-2 px-2 py-1 rounded-full"
+            style={{ background: risk.color + "14", border: `1px solid ${risk.color}30` }}>
+            {risk.pulse && (
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: risk.color }} />
+            )}
+            <span className="text-[10px] font-bold tracking-wider" style={{ color: risk.color }}>
+              {risk.text}
+            </span>
           </div>
 
           {/* Center — coordinates + status */}
@@ -116,7 +133,7 @@ function TopBar({
             <button
               onClick={onRefresh}
               disabled={refreshing}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              className="w-11 h-11 md:w-8 md:h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{
                 background: "rgba(255,255,255,0.04)",
                 border: "1px solid rgba(255,255,255,0.08)",
@@ -133,6 +150,8 @@ function TopBar({
 }
 
 export default function Dashboard() {
+  const isMobile = useIsMobile();
+  const [mobileTab, setMobileTab] = useState<"map" | "intel" | "chat">("map");
   const [features, setFeatures] = useState<FWCFeature[]>([]);
   const [fwcLoading, setFwcLoading] = useState(true);
   const [fwcError, setFwcError] = useState(false);
@@ -208,13 +227,14 @@ export default function Dashboard() {
 
   const fwcLevel: AbundanceLevel = getHighestThreatLevel(features);
 
+  const dataTimestamp = lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+
   return (
     <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
-      {/* Map fills the left side */}
-      <div className="flex-1 relative" style={{ marginRight: 380 }}>
+      {/* Map fills available space */}
+      <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }}>
         <TideMap features={features} wind={wind} loading={fwcLoading} onCenterChange={handleMapCenter} />
 
-        {/* Top bar sits over the map */}
         <TopBar
           fwcLevel={fwcLevel}
           featureCount={features.length}
@@ -222,9 +242,9 @@ export default function Dashboard() {
           lastUpdated={lastUpdated}
           onRefresh={loadAll}
           refreshing={refreshing}
+          isMobile={isMobile}
         />
 
-        {/* FWC error banner */}
         {fwcError && !fwcLoading && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -245,20 +265,58 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Weather Widget */}
-        <WeatherWidget lat={weatherCenter.lat} lng={weatherCenter.lng} />
+        {!isMobile && <WeatherWidget lat={weatherCenter.lat} lng={weatherCenter.lng} />}
       </div>
 
-      {/* Right sidebar */}
-      <AnalysisSidebar
-        articles={articles}
-        articlesLoading={articlesLoading}
-        newsSource={newsSource}
-        newsMessage={newsMessage}
-        wind={wind}
-        fwcLevel={fwcLevel}
-        dataTimestamp={lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
-      />
+      {/* Desktop sidebar */}
+      {!isMobile && (
+        <AnalysisSidebar
+          articles={articles}
+          articlesLoading={articlesLoading}
+          newsSource={newsSource}
+          newsMessage={newsMessage}
+          wind={wind}
+          fwcLevel={fwcLevel}
+          dataTimestamp={dataTimestamp}
+        />
+      )}
+
+      {/* Mobile: bottom drawer for intel */}
+      {isMobile && (
+        <>
+          <Drawer open={mobileTab === "intel"} onOpenChange={(open) => { if (!open) setMobileTab("map"); }}>
+            <DrawerContent className="z-[1100] border-t-white/10" style={{ background: "rgba(7,12,22,0.97)", maxHeight: "75vh" }}>
+              <DrawerTitle className="sr-only">Intel Feed</DrawerTitle>
+              <div className="overflow-y-auto" style={{ maxHeight: "70vh" }}>
+                <AnalysisIntelContent
+                  articles={articles}
+                  articlesLoading={articlesLoading}
+                  newsSource={newsSource}
+                  newsMessage={newsMessage}
+                  wind={wind}
+                  fwcLevel={fwcLevel}
+                />
+              </div>
+            </DrawerContent>
+          </Drawer>
+
+          {mobileTab === "chat" && (
+            <RedTideChatOverlay
+              onClose={() => setMobileTab("map")}
+              fwcLevel={fwcLevel}
+              wind={wind}
+              articles={articles}
+              dataTimestamp={dataTimestamp}
+            />
+          )}
+
+          <MobileBottomNav
+            activeTab={mobileTab}
+            onTabChange={setMobileTab}
+            accentColor="hsl(191 90% 46%)"
+          />
+        </>
+      )}
     </div>
   );
 }

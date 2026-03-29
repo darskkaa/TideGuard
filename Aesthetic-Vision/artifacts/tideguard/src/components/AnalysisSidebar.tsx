@@ -229,38 +229,115 @@ function BeachConditions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: W
   );
 }
 
-interface SidebarProps {
+export interface IntelContentProps {
   articles: NewsArticle[];
   articlesLoading: boolean;
   newsSource: "live" | "fallback" | null;
   newsMessage?: string;
   wind: WindData | null;
   fwcLevel: AbundanceLevel;
-  dataTimestamp: string;
 }
 
-export default function AnalysisSidebar({
-  articles,
-  articlesLoading,
-  newsSource,
-  newsMessage,
-  wind,
-  fwcLevel,
-  dataTimestamp,
-}: SidebarProps) {
-  const [activeTab, setActiveTab] = useState<"intel" | "chat">("intel");
+export function AnalysisIntelContent({
+  articles, articlesLoading, newsSource, newsMessage, wind, fwcLevel,
+}: IntelContentProps) {
+  return (
+    <div className="flex-1 min-h-0 flex flex-col">
+      <div className="flex-shrink-0 pt-3">
+        <WindRow wind={wind} />
+      </div>
+
+      <BeachConditions fwcLevel={fwcLevel} wind={wind} />
+
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-3">
+        {articlesLoading ? (
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="rounded-lg p-2.5 animate-pulse"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+              >
+                <div className="h-2.5 rounded mb-1.5" style={{ background: "rgba(255,255,255,0.06)", width: "55%" }} />
+                <div className="h-2 rounded" style={{ background: "rgba(255,255,255,0.04)", width: "85%" }} />
+              </div>
+            ))}
+          </div>
+        ) : articles.length === 0 ? (
+          <div
+            className="rounded-xl p-3 text-center"
+            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+          >
+            <div className="text-xs font-medium text-muted-foreground">No live news available</div>
+            {newsMessage && <div className="text-[11px] text-muted-foreground/60 mt-1">{newsMessage}</div>}
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {articles.slice(0, 5).map((article) => (
+              <a
+                key={article.id}
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-left rounded-xl p-2.5 transition-all duration-150 hover:bg-white/5"
+                style={{
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.05)",
+                  textDecoration: "none",
+                }}
+              >
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-[11px] font-semibold truncate" style={{ color: "hsl(210 18% 55%)" }}>
+                        {article.source}
+                      </span>
+                    </div>
+                    <div className="text-xs font-medium leading-tight line-clamp-2" style={{ color: "hsl(210 30% 78%)" }}>
+                      {article.title}
+                    </div>
+                  </div>
+                  <ChevronRight size={12} className="flex-shrink-0 mt-1" style={{ color: "hsl(210 18% 40%)" }} />
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div
+        className="flex-shrink-0 px-4 py-2.5 flex items-center justify-between"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        <div className="text-[10px] text-muted-foreground font-mono">
+          FWC · Open-Meteo · NewsAPI
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
+          <span className="text-[10px] text-muted-foreground">Live</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function RedTideChatOverlay({
+  onClose, fwcLevel, wind, articles, dataTimestamp,
+}: {
+  onClose: () => void;
+  fwcLevel: AbundanceLevel;
+  wind: WindData | null;
+  articles: NewsArticle[];
+  dataTimestamp: string;
+}) {
   const [copied, setCopied] = useState(false);
   const [sentQ, setSentQ] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const handleCloseChat = () => setActiveTab("intel");
-
   const sendQuestion = (q: string) => {
-    // Try postMessage to ContentIQ iframe
     iframeRef.current?.contentWindow?.postMessage({ type: "user-message", text: q }, "*");
     iframeRef.current?.contentWindow?.postMessage({ type: "sendMessage", message: q }, "*");
     iframeRef.current?.contentWindow?.postMessage({ content: q, role: "user" }, "*");
-    // Clipboard fallback
     navigator.clipboard.writeText(q).catch(() => {});
     setSentQ(q);
     setTimeout(() => setSentQ(null), 2500);
@@ -285,6 +362,102 @@ export default function AnalysisSidebar({
       setTimeout(() => setCopied(false), 2000);
     });
   };
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(7, 12, 22, 0.97)",
+        display: "flex", flexDirection: "column",
+      }}
+    >
+      <div
+        className="flex items-center justify-between px-4 py-2 flex-shrink-0"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "hsl(191 90% 46%)", boxShadow: "0 0 8px hsl(191 90% 46%)" }} />
+          <span className="text-sm font-bold tracking-wide" style={{ color: "hsl(191 90% 46%)" }}>
+            TideGuard AI
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={copyContext}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-150"
+            style={{
+              background: copied ? "rgba(34,197,94,0.12)" : "rgba(0,196,228,0.08)",
+              border: copied ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(0,196,228,0.2)",
+              color: copied ? "#22c55e" : "hsl(191 90% 46%)",
+            }}
+            title="Copy live context to paste into chat"
+          >
+            {copied ? <Check size={11} /> : <ClipboardCopy size={11} />}
+            {copied ? "Copied!" : "Copy Context"}
+          </button>
+          <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+            <X size={16} className="text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+      <div className="flex-shrink-0 px-4 py-2 flex flex-wrap gap-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        {buildQuestions(fwcLevel, wind).map((item) => (
+          <button
+            key={item.q}
+            onClick={() => sendQuestion(item.q)}
+            className="px-2.5 py-1 rounded-full text-[10px] font-medium transition-all duration-150 hover:bg-white/10 active:scale-95"
+            style={{
+              background: "rgba(0,196,228,0.07)",
+              border: "1px solid rgba(0,196,228,0.18)",
+              color: "hsl(191 80% 60%)",
+            }}
+          >
+            {item.q}
+          </button>
+        ))}
+      </div>
+      {sentQ && (
+        <div className="flex-shrink-0 flex items-center justify-center py-1.5">
+          <span className="text-[10px] font-medium px-3 py-1 rounded-full"
+            style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" }}>
+            Copied — paste into chat ↓
+          </span>
+        </div>
+      )}
+      <div className="flex-1 min-h-0 p-4">
+        <iframe
+          ref={iframeRef}
+          src={RED_ALGAE_CHAT_URL}
+          style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
+          allow="microphone"
+        />
+      </div>
+    </div>
+  );
+}
+
+interface SidebarProps {
+  articles: NewsArticle[];
+  articlesLoading: boolean;
+  newsSource: "live" | "fallback" | null;
+  newsMessage?: string;
+  wind: WindData | null;
+  fwcLevel: AbundanceLevel;
+  dataTimestamp: string;
+}
+
+export default function AnalysisSidebar({
+  articles,
+  articlesLoading,
+  newsSource,
+  newsMessage,
+  wind,
+  fwcLevel,
+  dataTimestamp,
+}: SidebarProps) {
+  const [activeTab, setActiveTab] = useState<"intel" | "chat">("intel");
+
+  const handleCloseChat = () => setActiveTab("intel");
 
   return (
     <div className="absolute right-0 top-0 h-full z-[1000]" style={{ width: 420 }}>
@@ -349,172 +522,27 @@ export default function AnalysisSidebar({
 
         {/* Tab Content */}
         <div className="flex-1 min-h-0 flex flex-col">
-
-          {/* ── INTEL TAB ── */}
           {activeTab === "intel" && (
-            <div className="flex-1 min-h-0 flex flex-col">
-              {/* Wind */}
-              <div className="flex-shrink-0 pt-3">
-                <WindRow wind={wind} />
-              </div>
-
-              {/* Beach Conditions */}
-              <BeachConditions fwcLevel={fwcLevel} wind={wind} />
-
-              {/* Articles — scrollable */}
-              <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-3">
-                {articlesLoading ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="rounded-lg p-2.5 animate-pulse"
-                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
-                      >
-                        <div className="h-2.5 rounded mb-1.5" style={{ background: "rgba(255,255,255,0.06)", width: "55%" }} />
-                        <div className="h-2 rounded" style={{ background: "rgba(255,255,255,0.04)", width: "85%" }} />
-                      </div>
-                    ))}
-                  </div>
-                ) : articles.length === 0 ? (
-                  <div
-                    className="rounded-xl p-3 text-center"
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
-                  >
-                    <div className="text-xs font-medium text-muted-foreground">No live news available</div>
-                    {newsMessage && <div className="text-[11px] text-muted-foreground/60 mt-1">{newsMessage}</div>}
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    {articles.slice(0, 5).map((article) => (
-                      <a
-                        key={article.id}
-                        href={article.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block w-full text-left rounded-xl p-2.5 transition-all duration-150 hover:bg-white/5"
-                        style={{
-                          background: "rgba(255,255,255,0.02)",
-                          border: "1px solid rgba(255,255,255,0.05)",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <div className="flex items-start gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 mb-1">
-                              <span className="text-[11px] font-semibold truncate" style={{ color: "hsl(210 18% 55%)" }}>
-                                {article.source}
-                              </span>
-                            </div>
-                            <div className="text-xs font-medium leading-tight line-clamp-2" style={{ color: "hsl(210 30% 78%)" }}>
-                              {article.title}
-                            </div>
-                          </div>
-                          <ChevronRight size={12} className="flex-shrink-0 mt-1" style={{ color: "hsl(210 18% 40%)" }} />
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div
-                className="flex-shrink-0 px-4 py-2.5 flex items-center justify-between"
-                style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
-              >
-                <div className="text-[10px] text-muted-foreground font-mono">
-                  FWC · Open-Meteo · NewsAPI
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
-                  <span className="text-[10px] text-muted-foreground">Live</span>
-                </div>
-              </div>
-            </div>
+            <AnalysisIntelContent
+              articles={articles}
+              articlesLoading={articlesLoading}
+              newsSource={newsSource}
+              newsMessage={newsMessage}
+              wind={wind}
+              fwcLevel={fwcLevel}
+            />
           )}
-
         </div>
       </div>
 
-      {/* AI Chat — fullscreen overlay (opens immediately when tab is clicked) */}
       {activeTab === "chat" && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            background: "rgba(7, 12, 22, 0.97)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <div
-            className="flex items-center justify-between px-4 py-2 flex-shrink-0"
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "hsl(191 90% 46%)", boxShadow: "0 0 8px hsl(191 90% 46%)" }} />
-              <span className="text-sm font-bold tracking-wide" style={{ color: "hsl(191 90% 46%)" }}>
-                TideGuard AI
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={copyContext}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-150"
-                style={{
-                  background: copied ? "rgba(34,197,94,0.12)" : "rgba(0,196,228,0.08)",
-                  border: copied ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(0,196,228,0.2)",
-                  color: copied ? "#22c55e" : "hsl(191 90% 46%)",
-                }}
-                title="Copy live context to paste into chat"
-              >
-                {copied ? <Check size={11} /> : <ClipboardCopy size={11} />}
-                {copied ? "Copied!" : "Copy Context"}
-              </button>
-              <button
-                onClick={handleCloseChat}
-                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <X size={16} className="text-muted-foreground" />
-              </button>
-            </div>
-          </div>
-          {/* Quick question pills */}
-          <div className="flex-shrink-0 px-4 py-2 flex flex-wrap gap-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-            {buildQuestions(fwcLevel, wind).map((item) => (
-              <button
-                key={item.q}
-                onClick={() => sendQuestion(item.q)}
-                className="px-2.5 py-1 rounded-full text-[10px] font-medium transition-all duration-150 hover:bg-white/10 active:scale-95"
-                style={{
-                  background: "rgba(0,196,228,0.07)",
-                  border: "1px solid rgba(0,196,228,0.18)",
-                  color: "hsl(191 80% 60%)",
-                }}
-              >
-                {item.q}
-              </button>
-            ))}
-          </div>
-          {sentQ && (
-            <div className="flex-shrink-0 flex items-center justify-center py-1.5">
-              <span className="text-[10px] font-medium px-3 py-1 rounded-full"
-                style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" }}>
-                Copied — paste into chat ↓
-              </span>
-            </div>
-          )}
-          <div className="flex-1 min-h-0 p-4">
-            <iframe
-              ref={iframeRef}
-              src={RED_ALGAE_CHAT_URL}
-              style={{ width: "100%", height: "100%", border: "none", borderRadius: 12 }}
-              allow="microphone"
-            />
-          </div>
-        </div>
+        <RedTideChatOverlay
+          onClose={handleCloseChat}
+          fwcLevel={fwcLevel}
+          wind={wind}
+          articles={articles}
+          dataTimestamp={dataTimestamp}
+        />
       )}
     </div>
   );

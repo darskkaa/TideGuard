@@ -16,6 +16,7 @@ import type { HurricaneStorm } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel } from "@/lib/hurricane-api";
 import type { WindData } from "@/lib/wind-api";
 import { Droplets, MapPin, Home, Layers } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CENTER: [number, number] = [26.4, -82.0]; // SW Florida focus
 const ZOOM = 8;
@@ -140,11 +141,71 @@ function OverlayControls({
   onToggleEvac: () => void;
   onToggleShelters: () => void;
 }) {
+  const isMobile = useIsMobile();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const anyActive = showFlood || showEvac || showShelters;
+
   const items = [
     { label: "Flood Zones", active: showFlood, onClick: onToggleFlood, color: "#3b82f6", icon: Droplets },
     { label: "Evacuation", active: showEvac, onClick: onToggleEvac, color: "#f97316", icon: MapPin },
     { label: "Shelters", active: showShelters, onClick: onToggleShelters, color: "#22c55e", icon: Home },
   ];
+
+  const itemsList = (
+    <>
+      {items.map(({ label, active, onClick, color, icon: Icon }) => (
+        <button
+          key={label}
+          onClick={onClick}
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all"
+          style={{
+            background: active ? color + "18" : "rgba(255,255,255,0.03)",
+            color: active ? color : "hsl(210 18% 55%)",
+            border: active ? `1px solid ${color}35` : "1px solid rgba(255,255,255,0.06)",
+            minHeight: isMobile ? 44 : undefined,
+          }}
+        >
+          <div
+            className="w-3 h-3 rounded-sm flex items-center justify-center"
+            style={{
+              background: active ? color : "transparent",
+              border: active ? "none" : `1.5px solid hsl(210 18% 40%)`,
+            }}
+          >
+            {active && (
+              <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          <Icon size={11} />
+          {label}
+        </button>
+      ))}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="absolute top-16 right-3 z-[1000]">
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="w-11 h-11 rounded-xl glass-panel flex items-center justify-center relative"
+          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}
+        >
+          <Layers size={16} className="text-muted-foreground" />
+          {anyActive && (
+            <div className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500" />
+          )}
+        </button>
+        {mobileOpen && (
+          <div className="mt-2 glass-panel rounded-xl p-2 space-y-1.5" style={{ minWidth: 150, boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+            {itemsList}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="absolute top-16 left-4 z-[1000]">
@@ -158,34 +219,7 @@ function OverlayControls({
             Map Layers
           </span>
         </div>
-        {items.map(({ label, active, onClick, color, icon: Icon }) => (
-          <button
-            key={label}
-            onClick={onClick}
-            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all"
-            style={{
-              background: active ? color + "18" : "rgba(255,255,255,0.03)",
-              color: active ? color : "hsl(210 18% 55%)",
-              border: active ? `1px solid ${color}35` : "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
-            <div
-              className="w-3 h-3 rounded-sm flex items-center justify-center"
-              style={{
-                background: active ? color : "transparent",
-                border: active ? "none" : `1.5px solid hsl(210 18% 40%)`,
-              }}
-            >
-              {active && (
-                <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </div>
-            <Icon size={11} />
-            {label}
-          </button>
-        ))}
+        {itemsList}
       </div>
     </div>
   );
@@ -411,7 +445,7 @@ const popupStyle: React.CSSProperties = {
   minWidth: 200,
 };
 
-function CategoryLegend() {
+function CategoryLegend({ isMobile }: { isMobile: boolean }) {
   const cats = [
     { label: "Cat 5", color: "#dc2626" },
     { label: "Cat 4", color: "#ef4444" },
@@ -421,8 +455,8 @@ function CategoryLegend() {
     { label: "TS/TD", color: "#60a5fa" },
   ];
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1000] pointer-events-none">
-      <div className="glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+    <div className={`absolute ${isMobile ? "bottom-20" : "bottom-8"} left-1/2 -translate-x-1/2 z-[1000] pointer-events-none ${isMobile ? "max-w-[calc(100vw-2rem)]" : ""}`}>
+      <div className={`glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4 ${isMobile ? "overflow-x-auto whitespace-nowrap" : ""}`} style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
         {cats.map((c) => (
           <div key={c.label} className="flex items-center gap-1.5">
             <div className="rounded-full" style={{ width: 8, height: 8, background: c.color, boxShadow: `0 0 8px ${c.color}88` }} />
@@ -453,6 +487,7 @@ function LoadingOverlay({ show }: { show: boolean }) {
 }
 
 export default function HurricaneMap({ storms, wind: _wind, loading, onCenterChange }: Props) {
+  const isMobile = useIsMobile();
   const [showFlood, setShowFlood] = useState(false);
   const [showEvac, setShowEvac] = useState(false);
   const [showShelters, setShowShelters] = useState(false);
@@ -472,13 +507,8 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
           maxZoom={19}
         />
 
-        {/* FEMA Flood Zones — real GeoJSON via National Flood Data API */}
         {showFlood && <FloodZoneLayer />}
-
-        {/* Evacuation Zone Polygons */}
         {showEvac && <EvacZonePolygons />}
-
-        {/* Emergency Shelter Markers */}
         {showShelters && <ShelterMarkers />}
 
         <StormMarkers storms={storms} />
@@ -494,7 +524,7 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
         onToggleEvac={() => setShowEvac(!showEvac)}
         onToggleShelters={() => setShowShelters(!showShelters)}
       />
-      <CategoryLegend />
+      <CategoryLegend isMobile={isMobile} />
       <LoadingOverlay show={loading} />
     </div>
   );
