@@ -1,5 +1,7 @@
 # TideGuard
 
+![TideGuard — EagleHacks 2026](banner.png)
+
 Dual-threat coastal monitoring for Southwest Florida — real-time red tide blooms and Atlantic hurricane tracking, built for the people who have to make fast decisions on the ground.
 
 **EagleHacks 2026**
@@ -28,7 +30,7 @@ The main view shows a live Leaflet map of Karenia brevis sample locations from t
 
 Above the map, a threat header updates in real time: Critical Threat, Elevated Threat, Low Threat, or All Clear — derived from the peak bloom concentration in the dataset combined with the current wind vector. The wind panel shows direction, speed, and whether the wind is onshore (pushing airborne toxins toward populated beaches) or offshore (dispersing the bloom to sea).
 
-The sidebar — or on mobile, a swipe-up drawer — contains a beach respiratory risk grid for Southwest Florida beaches, a dead fish cleanup priority index, a curated news feed, and an AI chat window backed by IBM watsonx. The chat has live context injected: current bloom level, wind conditions, and recent articles are passed as context so the model can answer grounded, specific questions about today's conditions.
+The sidebar — or on mobile, a swipe-up drawer — contains a beach respiratory risk grid for Southwest Florida beaches, a dead fish cleanup priority index, a live news feed, and an AI chat window backed by IBM watsonx. The chat has live context injected: current bloom level, wind conditions, and recent articles are passed as context so the model can answer grounded, specific questions about today's conditions.
 
 ### Hurricane Dashboard
 
@@ -94,7 +96,7 @@ On screens under 768px, both dashboards switch to a full-screen map layout. A fi
 | Hurricane tracks | NOAA National Hurricane Center | None |
 | Weather alerts | NOAA Weather API | None |
 | Animated radar | Xweather / AerisWeather tile API | App ID + Secret |
-| Hurricane news | NewsAPI v2 | API key (curated articles included) |
+| Hurricane news | NewsAPI v2 | API key |
 | Flood zones | Hardcoded FEMA NFHL designations, SWFL | None |
 | AI chat | IBM watsonx + ContentIQ | Deployment URL |
 
@@ -127,7 +129,7 @@ PORT=3001
 XWEATHER_CLIENT_ID=your_client_id
 XWEATHER_CLIENT_SECRET=your_client_secret
 
-# NewsAPI — optional, curated articles included if omitted
+# NewsAPI — required for hurricane news feed
 NEWS_API_KEY=your_newsapi_key
 
 # IBM watsonx — optional, insurance claims AI
@@ -192,7 +194,7 @@ Most of the app works without any API keys. The following features require addit
 | Feature | Required key | Behavior without it |
 |---|---|---|
 | Animated radar overlay | Xweather credentials | Layer toggle shows, tiles return 403 |
-| Hurricane news feed | NewsAPI key | Serves 8 curated articles instead |
+| Hurricane news feed | NewsAPI key | News feed unavailable |
 | Insurance claims AI | IBM watsonx credentials | Rule-based risk estimate used instead |
 
 ---
@@ -218,14 +220,14 @@ Aesthetic-Vision/artifacts/
 │   │   │   ├── hurricane-api.ts            # NOAA NHC parsing + demo fallback
 │   │   │   ├── wind-api.ts                 # Open-Meteo + onshore/offshore logic
 │   │   │   ├── analysis.ts                 # Threat scoring
-│   │   │   └── red-tide-knowledge-base.ts  # 13 curated articles + ML summary
+│   │   │   └── red-tide-knowledge-base.ts  # Red tide knowledge base + ML summary
 │   │   └── App.tsx
 │   └── vite.config.ts
 └── api-server/                       # Express backend
     └── src/routes/
         ├── hurricane.ts              # NOAA NHC proxy
-        ├── news.ts                   # Curated red tide articles endpoint
-        ├── hurricane-news.ts         # NewsAPI + curated articles
+        ├── news.ts                   # Red tide news endpoint
+        ├── hurricane-news.ts         # NewsAPI hurricane news
         ├── road-conditions.ts        # Xweather road weather proxy
         ├── watsonx-claims.ts         # IBM watsonx insurance claims
         └── flood-zones.ts            # Hardcoded FEMA flood zone data
@@ -238,8 +240,8 @@ Aesthetic-Vision/artifacts/
 | Method | Route | Description |
 |---|---|---|
 | GET | `/api/health` | Health check |
-| GET | `/api/news` | 13 curated red tide articles |
-| GET | `/api/hurricane-news` | Hurricane articles (NewsAPI + fallback) |
+| GET | `/api/news` | Red tide news articles |
+| GET | `/api/hurricane-news` | Hurricane articles via NewsAPI |
 | GET | `/api/hurricane/storms` | NOAA NHC active storms |
 | GET | `/api/road-conditions` | Xweather road conditions (6 SWFL roads) |
 | POST | `/api/watsonx-claims` | IBM watsonx insurance claim assessment |
