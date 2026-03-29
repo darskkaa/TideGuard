@@ -7,6 +7,15 @@ import {
   useMap,
   useMapEvents,
 } from "react-leaflet";
+
+function MapResizer({ isMobile }: { isMobile: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const t = setTimeout(() => map.invalidateSize(), 100);
+    return () => clearTimeout(t);
+  }, [map, isMobile]);
+  return null;
+}
 import type { FWCFeature } from "@/lib/fwc-api";
 import { getAbundanceLevel, getAbundanceColor, getAbundanceLabel } from "@/lib/fwc-api";
 import type { WindData } from "@/lib/wind-api";
@@ -245,6 +254,7 @@ export default function TideMap({ features, wind, loading, onCenterChange }: Pro
         />
         <FWCMarkers features={features} />
         <MapCenterTracker onCenterChange={onCenterChange} />
+        <MapResizer isMobile={isMobile} />
       </MapContainer>
 
       {!isMobile && <WindCompass wind={wind} />}

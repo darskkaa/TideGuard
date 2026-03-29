@@ -260,7 +260,7 @@ export default function HurricaneDashboard() {
       {/* Mobile: bottom drawer for intel */}
       {isMobile && (
         <>
-          <Drawer open={mobileTab === "intel"} onOpenChange={(open) => { if (!open) setMobileTab("map"); }}>
+          <Drawer open={mobileTab === "intel"} onOpenChange={(open) => { if (!open) setMobileTab("map"); }} shouldScaleBackground={false}>
             <DrawerContent className="z-[1100] border-t-white/10" style={{ background: "rgba(7,12,22,0.97)", maxHeight: "75vh" }}>
               <DrawerTitle className="sr-only">Hurricane Intel</DrawerTitle>
               <div className="overflow-y-auto" style={{ maxHeight: "70vh" }}>

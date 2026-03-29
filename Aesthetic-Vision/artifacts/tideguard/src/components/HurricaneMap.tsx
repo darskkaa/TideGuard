@@ -12,6 +12,15 @@ import {
 } from "react-leaflet";
 import { useEffect } from "react";
 import L from "leaflet";
+
+function MapResizer({ isMobile }: { isMobile: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const t = setTimeout(() => map.invalidateSize(), 100);
+    return () => clearTimeout(t);
+  }, [map, isMobile]);
+  return null;
+}
 import type { HurricaneStorm } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel } from "@/lib/hurricane-api";
 import type { WindData } from "@/lib/wind-api";
@@ -514,6 +523,7 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
         <StormMarkers storms={storms} />
         <MapFlyTo storms={storms} />
         <MapCenterTracker onCenterChange={onCenterChange} />
+        <MapResizer isMobile={isMobile} />
       </MapContainer>
 
       <OverlayControls
