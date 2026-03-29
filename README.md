@@ -6,7 +6,7 @@ Dual-threat coastal monitoring for Southwest Florida — real-time red tide bloo
 
 **EagleHacks 2026**
 
-Live deployment: https://tideguard-saddasads-projects.vercel.app
+Live deployment :https://redalage-um5a-git-main-saddasads-projects.vercel.app/
 
 ---
 
