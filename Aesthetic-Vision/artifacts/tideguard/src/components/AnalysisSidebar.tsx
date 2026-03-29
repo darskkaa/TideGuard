@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Wind, Newspaper, MessageSquare, X, ExternalLink, ChevronRight, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { Wind, Newspaper, MessageSquare, X, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
 import type { AbundanceLevel } from "@/lib/fwc-api";
@@ -79,22 +79,9 @@ export default function AnalysisSidebar({
   dataTimestamp,
 }: SidebarProps) {
   const [activeTab, setActiveTab] = useState<"intel" | "chat">("intel");
-  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
-  const [isFullscreen, setFullscreen] = useState(false);
-  const [contextExpanded, setContextExpanded] = useState(false);
 
-  // Auto-switch to chat tab when article is selected
-  useEffect(() => {
-    if (selectedArticle) setActiveTab("chat");
-  }, [selectedArticle]);
-
-  const windContext = wind
-    ? `Wind: ${wind.directionLabel} at ${wind.speed} km/h (${wind.isOnshore ? "ONSHORE — toxins moving toward coast" : "OFFSHORE — dispersing away"})`
-    : "Wind: Data unavailable";
-
-  const suggestedPrompt = selectedArticle
-    ? `Analyze "${selectedArticle.title}" (${selectedArticle.source}) in the context of red tide monitoring for Southwest Florida. Current conditions: Bloom level is ${fwcLevel.replace("_", " ")}, ${windContext}. What business risks and actions should coastal restaurants take?`
-    : "";
+  // Chat tab opens fullscreen; closing reverts to intel
+  const handleCloseChat = () => setActiveTab("intel");
 
   return (
     <div className="absolute right-0 top-0 h-full z-[1000]" style={{ width: 420 }}>
@@ -135,12 +122,6 @@ export default function AnalysisSidebar({
           >
             <MessageSquare size={11} />
             AI Chat
-            {selectedArticle && activeTab !== "chat" && (
-              <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: "hsl(191 90% 46%)" }}
-              />
-            )}
           </button>
 
           {/* Spacer + source badge */}
@@ -199,54 +180,37 @@ export default function AnalysisSidebar({
                   </div>
                 ) : (
                   <div className="space-y-1.5">
-                    {articles.slice(0, 5).map((article) => {
-                      const isSelected = selectedArticle?.id === article.id;
-                      return (
-                        <motion.button
-                          key={article.id}
-                          onClick={() => setSelectedArticle(isSelected ? null : article)}
-                          className="w-full text-left rounded-xl p-2.5 transition-all duration-150"
-                          style={{
-                            background: isSelected ? "rgba(0,196,228,0.08)" : "rgba(255,255,255,0.02)",
-                            border: isSelected
-                              ? "1px solid rgba(0,196,228,0.28)"
-                              : "1px solid rgba(255,255,255,0.05)",
-                          }}
-                          whileTap={{ scale: 0.997 }}
-                        >
-                          <div className="flex items-start gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <span
-                                  className="text-[10px] font-semibold truncate"
-                                  style={{ color: isSelected ? "hsl(191 90% 46%)" : "hsl(210 18% 55%)" }}
-                                >
-                                  {article.source}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground flex-shrink-0">
-                                  {timeAgo(article.publishedAt)}
-                                </span>
-                              </div>
-                              <div
-                                className="text-[11px] font-medium leading-tight line-clamp-2"
-                                style={{ color: isSelected ? "hsl(210 30% 95%)" : "hsl(210 30% 78%)" }}
-                              >
-                                {article.title}
-                              </div>
+                    {articles.slice(0, 5).map((article) => (
+                      <a
+                        key={article.id}
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full text-left rounded-xl p-2.5 transition-all duration-150 hover:bg-white/5"
+                        style={{
+                          background: "rgba(255,255,255,0.02)",
+                          border: "1px solid rgba(255,255,255,0.05)",
+                          textDecoration: "none",
+                        }}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-[10px] font-semibold truncate" style={{ color: "hsl(210 18% 55%)" }}>
+                                {article.source}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                                {timeAgo(article.publishedAt)}
+                              </span>
                             </div>
-                            <ChevronRight
-                              size={12}
-                              className="flex-shrink-0 mt-1"
-                              style={{
-                                color: isSelected ? "hsl(191 90% 46%)" : "hsl(210 18% 40%)",
-                                transform: isSelected ? "rotate(90deg)" : "none",
-                                transition: "transform 0.15s",
-                              }}
-                            />
+                            <div className="text-[11px] font-medium leading-tight line-clamp-2" style={{ color: "hsl(210 30% 78%)" }}>
+                              {article.title}
+                            </div>
                           </div>
-                        </motion.button>
-                      );
-                    })}
+                          <ChevronRight size={12} className="flex-shrink-0 mt-1" style={{ color: "hsl(210 18% 40%)" }} />
+                        </div>
+                      </a>
+                    ))}
                   </div>
                 )}
               </div>
@@ -267,134 +231,11 @@ export default function AnalysisSidebar({
             </div>
           )}
 
-          {/* ── CHAT TAB ── */}
-          {activeTab === "chat" && (
-            <div className="flex-1 min-h-0 flex flex-col">
-              {/* Chat header with fullscreen toggle */}
-              <div
-                className="flex-shrink-0 flex items-center justify-between px-4 py-2"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
-              >
-                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
-                  TideGuard AI
-                </div>
-                <button
-                  onClick={() => setFullscreen(!isFullscreen)}
-                  className="p-1 hover:bg-white/10 rounded transition-colors"
-                  title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-                >
-                  {isFullscreen ? (
-                    <Minimize2 size={14} className="text-muted-foreground" />
-                  ) : (
-                    <Maximize2 size={14} className="text-muted-foreground" />
-                  )}
-                </button>
-              </div>
-
-              {/* Collapsible context panel */}
-              <AnimatePresence>
-                {selectedArticle && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex-shrink-0"
-                  >
-                    <button
-                      onClick={() => setContextExpanded(!contextExpanded)}
-                      className="w-full px-4 py-2 flex items-center justify-between hover:bg-white/5 transition-colors"
-                      style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-[9px] font-semibold text-primary uppercase tracking-widest">
-                          Article Context
-                        </span>
-                        <span className="text-[8px] text-muted-foreground truncate max-w-32">
-                          {selectedArticle.title}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setSelectedArticle(null); }}
-                          className="p-0.5 hover:bg-white/10 rounded"
-                        >
-                          <X size={10} className="text-muted-foreground" />
-                        </button>
-                        <ChevronDown
-                          size={14}
-                          className="flex-shrink-0 transition-transform"
-                          style={{ transform: contextExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                        />
-                      </div>
-                    </button>
-
-                    {contextExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="px-4 py-2 max-h-40 overflow-y-auto"
-                        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
-                      >
-                        <div className="space-y-2">
-                          <div>
-                            <div className="text-[8px] font-semibold text-primary uppercase tracking-widest mb-0.5">
-                              Selected Article
-                            </div>
-                            <div className="text-[9px] text-foreground font-medium leading-snug">
-                              {selectedArticle.title}
-                            </div>
-                            <div className="text-[8px] text-muted-foreground mt-0.5">
-                              {selectedArticle.source} · {timeAgo(selectedArticle.publishedAt)}
-                            </div>
-                          </div>
-
-                          <div className="pt-1 border-t border-white/10 space-y-1">
-                            <div className="grid grid-cols-2 gap-1.5">
-                              <div>
-                                <div className="text-[7px] text-muted-foreground uppercase tracking-widest">Bloom</div>
-                                <div className="text-[9px] font-semibold text-white">{fwcLevel.replace("_", " ")}</div>
-                              </div>
-                              <div>
-                                <div className="text-[7px] text-muted-foreground uppercase tracking-widest">Wind</div>
-                                <div className="text-[9px] font-semibold text-white">{wind ? `${wind.directionLabel} ${wind.speed}` : "—"}</div>
-                              </div>
-                            </div>
-
-                            <div className="pt-1">
-                              <div className="text-[7px] text-muted-foreground uppercase tracking-widest mb-0.5">Suggested Prompt</div>
-                              <div className="text-[8px] text-white/75 bg-white/5 rounded p-1 max-h-16 overflow-y-auto font-mono leading-tight">
-                                {suggestedPrompt}
-                              </div>
-                              <div className="text-[7px] text-muted-foreground/60 mt-0.5 italic">
-                                Copy &amp; paste below
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* ContentIQ Widget — fills all remaining space */}
-              <div className="flex-1 min-h-0 px-3 pb-3 pt-2">
-                <ContentIQWidget
-                  agentId={RED_ALGAE_AGENT_ID}
-                  token={RED_ALGAE_AGENT_TOKEN}
-                  style={{ height: "100%", borderRadius: 12 }}
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Fullscreen overlay */}
-      {isFullscreen && (
+      {/* AI Chat — fullscreen overlay (opens immediately when tab is clicked) */}
+      {activeTab === "chat" && (
         <div
           style={{
             position: "fixed",
@@ -410,10 +251,10 @@ export default function AnalysisSidebar({
             style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
           >
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-              TideGuard AI — Fullscreen
+              TideGuard AI
             </span>
             <button
-              onClick={() => setFullscreen(false)}
+              onClick={handleCloseChat}
               className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
             >
               <X size={16} className="text-muted-foreground" />

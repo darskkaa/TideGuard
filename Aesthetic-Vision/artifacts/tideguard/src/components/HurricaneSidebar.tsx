@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Wind, AlertTriangle, MessageSquare, Maximize2, Minimize2, X, ChevronRight, Newspaper } from "lucide-react";
+import { Wind, AlertTriangle, MessageSquare, X, ChevronRight, Newspaper } from "lucide-react";
 import type { HurricaneStorm, HurricaneAlert } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel, getThreatLevel } from "@/lib/hurricane-api";
 import type { WindData } from "@/lib/wind-api";
@@ -85,7 +85,6 @@ export default function HurricaneSidebar({
   dataTimestamp,
 }: SidebarProps) {
   const [activeTab, setActiveTab] = useState<"intel" | "chat">("intel");
-  const [isFullscreen, setFullscreen] = useState(false);
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(true);
   const [newsSource, setNewsSource] = useState<"live" | "fallback" | null>(null);
@@ -151,12 +150,6 @@ export default function HurricaneSidebar({
               <div className="w-1 h-1 rounded-full" style={{ background: dataSource === "live" ? "#22c55e" : "#f59e0b" }} />
               {dataSource === "live" ? "LIVE" : "DEMO"}
             </div>
-            {activeTab === "chat" && (
-              <button onClick={() => setFullscreen(!isFullscreen)}
-                className="p-1 hover:bg-white/10 rounded transition-colors">
-                {isFullscreen ? <Minimize2 size={14} className="text-muted-foreground" /> : <Maximize2 size={14} className="text-muted-foreground" />}
-              </button>
-            )}
           </div>
 
           {/* Tab content */}
@@ -303,38 +296,20 @@ export default function HurricaneSidebar({
               </div>
             )}
 
-            {/* ── AI Chat tab ── */}
-            {activeTab === "chat" && (
-              <div className="flex-1 min-h-0 flex flex-col">
-                <div className="flex-shrink-0 flex items-center justify-between px-4 py-2"
-                  style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                  <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
-                    StormGuard AI
-                  </div>
-                </div>
-                <div className="flex-1 min-h-0 px-3 pb-3 pt-2">
-                  <ContentIQWidget
-                    agentId={HURRICANE_AGENT_ID}
-                    token={HURRICANE_AGENT_TOKEN}
-                    style={{ height: "100%", borderRadius: 12 }}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Fullscreen overlay for AI Chat */}
-      {isFullscreen && activeTab === "chat" && (
+      {/* AI Chat — fullscreen overlay (opens immediately when tab is clicked) */}
+      {activeTab === "chat" && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999,
           background: "rgba(7, 12, 22, 0.97)", display: "flex", flexDirection: "column" }}>
           <div className="flex items-center justify-between px-4 py-2 flex-shrink-0"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-              StormGuard AI — Fullscreen
+              StormGuard AI
             </span>
-            <button onClick={() => setFullscreen(false)}
+            <button onClick={() => setActiveTab("intel")}
               className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
               <X size={16} className="text-muted-foreground" />
             </button>

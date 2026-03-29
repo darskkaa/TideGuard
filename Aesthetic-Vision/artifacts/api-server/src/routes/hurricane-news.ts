@@ -86,7 +86,7 @@ interface NewsAPIResponse {
 
 router.get("/hurricane-news", async (req, res) => {
   try {
-    const url = `https://newsapi.org/v2/everything?q=hurricane+florida&sortBy=publishedAt&pageSize=8&language=en&apiKey=${NEWS_API_KEY}`;
+    const url = `https://newsapi.org/v2/everything?q=hurricane+OR+tropical+storm+florida&sortBy=relevancy&pageSize=8&language=en&apiKey=${NEWS_API_KEY}`;
     const upstream = await fetch(url, {
       headers: { "User-Agent": "TideGuard/1.0" },
       signal: AbortSignal.timeout(8000),
