@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Wind, AlertTriangle, MessageSquare, X, ChevronRight, Newspaper, ClipboardCopy, Check } from "lucide-react";
+import { Wind, AlertTriangle, MessageSquare, X, ChevronRight, Newspaper, ClipboardCopy, Check, ChevronDown } from "lucide-react";
 import type { HurricaneStorm, HurricaneAlert } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel, getThreatLevel } from "@/lib/hurricane-api";
 import type { WindData } from "@/lib/wind-api";
@@ -59,6 +59,106 @@ function StormCard({ storm }: { storm: HurricaneStorm }) {
           <div key={l}>
             <div className="text-[8px] text-muted-foreground uppercase tracking-widest">{l}</div>
             <div className="text-[11px] font-semibold text-foreground">{value}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function buildHurricaneQuestions(storms: HurricaneStorm[], alerts: HurricaneAlert[], wind: WindData | null) {
+  const hasActiveStorm = storms.length > 0;
+  const hasWarning = alerts.some((a) => a.event.includes("Warning"));
+  const topStorm = storms[0];
+
+  return [
+    // ── Passed TestIQ cases ──
+    {
+      q: "What was the average NFIP payout for Hurricane Ian?",
+      a: "Hurricane Ian (2022) generated over 44,000 NFIP flood insurance claims across Florida. The average payout was approximately $116,000 per claim, with total NFIP payments exceeding $3.6 billion. Lee County alone accounted for the majority of claims, making Ian the single most expensive NFIP event in Florida history. Many homeowners who lacked flood coverage received nothing — underscoring the coverage gap that affects an estimated 60% of Gulf Coast homeowners.",
+    },
+    {
+      q: "What is a Zone V/VE flood zone?",
+      a: "Zone V/VE (Velocity Hazard Zone) is FEMA's highest-risk coastal flood designation — areas subject to wave action in addition to flooding. Building requirements include: elevation on open pilings or columns (not fill), breakaway walls below the BFE, no enclosed space used for living below the BFE, freeboard above the Base Flood Elevation (BFE), and mandatory NFIP flood insurance for federally-backed mortgages. Zone VE includes BFE data while Zone V does not. Most of Southwest Florida's beachfront and barrier island properties fall in VE zones.",
+    },
+    {
+      q: "What was the total economic damage from Hurricane Ian?",
+      a: "Hurricane Ian (September 28, 2022) caused an estimated $112–$113 billion in total economic damage, making it the third-costliest U.S. hurricane on record. Insured losses reached approximately $60 billion. Lee County bore the brunt — Fort Myers Beach and Pine Island were nearly destroyed. Over 150 people died, primarily from storm surge. Ian made landfall near Fort Myers as a Category 4 storm with 150 mph winds and a storm surge of 12–18 feet along the Lee County coast.",
+    },
+    {
+      q: "What is the risk profile for Lee County?",
+      a: "Lee County is among Florida's highest-risk counties for hurricane storm surge and wind damage. Key risk factors: (1) Low elevation — much of the county sits 5–10 ft above sea level. (2) Extensive coastline and estuaries amplify surge. (3) Large pre-2002 housing stock with older wind mitigation standards. (4) High population density in Zones A/B (Cape Coral, Fort Myers Beach, Bonita Springs). (5) Ian 2022 demonstrated catastrophic vulnerability — surge of 12–18 ft inundated areas miles inland. Properties in Zones A, AE, and VE face mandatory flood insurance requirements.",
+    },
+    // ── Live-condition questions ──
+    {
+      q: "Should I evacuate right now?",
+      a: hasWarning
+        ? `A Hurricane Warning is currently active in the area. If you are in an evacuation Zone A or B, leave immediately — do not wait for the storm to approach. Bring your go-bag, medications, documents, and pets. Use designated evacuation routes and go to the nearest public shelter. Do NOT shelter in place in Zone A during a major hurricane.`
+        : hasActiveStorm
+        ? `A tropical system is active (${topStorm?.name ?? "unnamed"}). Monitor your local Emergency Management agency and NHC advisories closely. Prepare your go-bag now. If you are in Zone A or B and a Warning is issued, be ready to leave within 1–2 hours.`
+        : "No active storm warnings are in effect. This is a good time to review your evacuation zone, plan your route, and assemble your hurricane kit so you're ready before a storm threatens.",
+    },
+    {
+      q: "What should my hurricane kit include?",
+      a: "FEMA recommends a minimum 7-day supply kit for Southwest Florida: (1) Water — 1 gallon/person/day. (2) Non-perishable food and manual can opener. (3) Medications and copies of prescriptions. (4) Important documents — insurance policies, IDs, deeds — in a waterproof bag. (5) Phone chargers + portable battery bank. (6) Flashlights and extra batteries. (7) First aid kit. (8) Cash in small bills (ATMs fail after storms). (9) Pet supplies, leash, carrier, and vaccination records. (10) N95 masks and hand sanitizer. Store your kit in a grab-and-go bag near the door.",
+    },
+    {
+      q: "How do I file a hurricane damage claim?",
+      a: "1. Document everything first — photograph and video all damage before any cleanup or repairs. 2. Call your homeowner's insurer and file a claim as soon as possible — backlogs form fast after major storms. 3. If you have NFIP flood insurance, file a separate flood claim (different policy). 4. Request your adjuster appointment and ask for a written estimate. 5. Apply for FEMA Individual Assistance at DisasterAssistance.gov if a federal disaster is declared. 6. Apply for an SBA disaster loan (available to homeowners and renters) at disasterloanassistance.sba.gov. Keep all receipts for temporary repairs and living expenses — these may be reimbursable.",
+    },
+    {
+      q: "What are hurricane deductibles in Florida?",
+      a: "Florida homeowners insurance policies have a separate hurricane deductible — typically 2%, 5%, or 10% of the insured dwelling value (not a flat dollar amount). Example: a $400,000 home with a 5% deductible means you pay the first $20,000 out of pocket before insurance applies. Hurricane deductibles activate once the NHC names a storm that threatens Florida. Citizens Property Insurance offers 2% minimum deductibles. Always check whether your policy has a separate wind deductible and a separate flood deductible — they are not the same coverage.",
+    },
+    {
+      q: "What are major Florida insurance changes for 2026?",
+      a: "Key 2026 Florida insurance developments: (1) SB 2A (2022) & HB 837 (2023) reforms reduced litigation abuse, lowering some market pressures. (2) Reinsurance costs remain elevated post-Ian, keeping premiums high across SW Florida. (3) Citizens Property Insurance depopulation program continues pushing policies to private market. (4) New roof age rules: insurers may not deny coverage solely due to a roof over 15 years old if in good condition. (5) Surplus lines and E&S carriers now cover more properties where admitted carriers have withdrawn. Always compare Citizens vs. private market rates annually — the gap has narrowed.",
+    },
+  ];
+}
+
+function HurricaneCommonQuestions({ storms, alerts, wind }: { storms: HurricaneStorm[]; alerts: HurricaneAlert[]; wind: WindData | null }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const questions = buildHurricaneQuestions(storms, alerts, wind);
+
+  return (
+    <div className="px-4 pb-3">
+      <div className="text-[9px] text-muted-foreground uppercase tracking-widest mb-2">Common Questions</div>
+      <div className="space-y-1">
+        {questions.map((item, i) => (
+          <div
+            key={i}
+            className="rounded-xl overflow-hidden"
+            style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
+          >
+            <button
+              onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              className="w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-white/5"
+            >
+              <span className="text-[11px] font-medium pr-2" style={{ color: "hsl(210 30% 78%)" }}>
+                {item.q}
+              </span>
+              <ChevronDown
+                size={12}
+                className="flex-shrink-0 transition-transform duration-150"
+                style={{
+                  color: "hsl(210 18% 45%)",
+                  transform: openIndex === i ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </button>
+            {openIndex === i && (
+              <div
+                className="px-3 pb-3 text-[11px] leading-relaxed"
+                style={{
+                  color: "hsl(210 15% 60%)",
+                  borderTop: "1px solid rgba(255,255,255,0.04)",
+                  paddingTop: 8,
+                }}
+              >
+                {item.a}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -257,6 +357,9 @@ export default function HurricaneSidebar({
                       </div>
                     </div>
                   </div>
+
+                  {/* Common Questions */}
+                  <HurricaneCommonQuestions storms={storms} alerts={alerts} wind={wind} />
 
                   {/* Hurricane News Articles */}
                   <div className="px-4 pb-3">
