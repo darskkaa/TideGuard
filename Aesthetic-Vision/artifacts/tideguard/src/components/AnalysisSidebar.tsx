@@ -172,6 +172,63 @@ function CommonQuestions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: W
   );
 }
 
+const SWFL_BEACHES = [
+  "Fort Myers Beach", "Bonita Beach", "Naples Beach",
+  "Vanderbilt Beach", "Siesta Key", "Venice Beach",
+];
+
+function beachRespRisk(fwcLevel: AbundanceLevel, isOnshore: boolean) {
+  if (fwcLevel === "not_present") return { label: "Clear", color: "#3b82f6" };
+  if (fwcLevel === "low" && !isOnshore) return { label: "Low", color: "#22c55e" };
+  if (fwcLevel === "low" && isOnshore) return { label: "Moderate", color: "#f59e0b" };
+  if (fwcLevel === "medium" && !isOnshore) return { label: "Moderate", color: "#f59e0b" };
+  if (fwcLevel === "medium" && isOnshore) return { label: "High", color: "#ef4444" };
+  return { label: "Severe", color: "#dc2626" }; // high bloom
+}
+
+function cleanupPriority(fwcLevel: AbundanceLevel, isOnshore: boolean) {
+  if (fwcLevel === "not_present" || fwcLevel === "low") return { label: "Routine", color: "#22c55e" };
+  if (fwcLevel === "medium" && !isOnshore) return { label: "Elevated", color: "#f59e0b" };
+  if (fwcLevel === "medium" && isOnshore) return { label: "High", color: "#ef4444" };
+  if (fwcLevel === "high" && !isOnshore) return { label: "High", color: "#ef4444" };
+  return { label: "Critical", color: "#dc2626" };
+}
+
+function BeachConditions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: WindData | null }) {
+  const isOnshore = wind?.isOnshore ?? false;
+  const risk = beachRespRisk(fwcLevel, isOnshore);
+  const cleanup = cleanupPriority(fwcLevel, isOnshore);
+  return (
+    <div className="px-4 pb-3">
+      <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Beach Conditions</div>
+      {/* Respiratory risk grid */}
+      <div className="grid grid-cols-2 gap-1 mb-2">
+        {SWFL_BEACHES.map((beach) => (
+          <div key={beach} className="flex items-center justify-between rounded-lg px-2.5 py-1.5"
+            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <span className="text-[10px] text-muted-foreground truncate pr-1">{beach}</span>
+            <span className="text-[9px] font-bold flex-shrink-0 px-1.5 py-0.5 rounded-full"
+              style={{ background: risk.color + "18", color: risk.color }}>
+              {risk.label}
+            </span>
+          </div>
+        ))}
+      </div>
+      {/* Cleanup priority */}
+      <div className="flex items-center justify-between rounded-lg px-3 py-2"
+        style={{ background: cleanup.color + "0a", border: `1px solid ${cleanup.color}22` }}>
+        <div>
+          <div className="text-[10px] text-muted-foreground">Dead Fish Cleanup Priority</div>
+          <div className="text-[10px] text-muted-foreground/60 mt-0.5">
+            {isOnshore ? "Onshore wind — debris accumulating on beaches" : "Offshore wind — reduced coastal deposition"}
+          </div>
+        </div>
+        <span className="text-xs font-bold ml-3 flex-shrink-0" style={{ color: cleanup.color }}>{cleanup.label}</span>
+      </div>
+    </div>
+  );
+}
+
 interface SidebarProps {
   articles: NewsArticle[];
   articlesLoading: boolean;
@@ -300,6 +357,9 @@ export default function AnalysisSidebar({
               <div className="flex-shrink-0 pt-3">
                 <WindRow wind={wind} />
               </div>
+
+              {/* Beach Conditions */}
+              <BeachConditions fwcLevel={fwcLevel} wind={wind} />
 
               {/* Articles — scrollable */}
               <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-3">

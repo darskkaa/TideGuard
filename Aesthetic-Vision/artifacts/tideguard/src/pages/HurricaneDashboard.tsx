@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Wind, RefreshCw, AlertTriangle, MapPin } from "lucide-react";
 import HurricaneMap from "@/components/HurricaneMap";
@@ -128,6 +128,12 @@ export default function HurricaneDashboard() {
   const [wind, setWind] = useState<WindData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [weatherCenter, setWeatherCenter] = useState({ lat: CENTER_LAT, lng: CENTER_LNG });
+  const weatherTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleMapCenter = useCallback((lat: number, lng: number) => {
+    if (weatherTimerRef.current) clearTimeout(weatherTimerRef.current);
+    weatherTimerRef.current = setTimeout(() => setWeatherCenter({ lat, lng }), 800);
+  }, []);
 
   const loadAll = useCallback(async () => {
     setRefreshing(true);
@@ -169,7 +175,7 @@ export default function HurricaneDashboard() {
     <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
       {/* Map */}
       <div className="flex-1 relative" style={{ marginRight: 380 }}>
-        <HurricaneMap storms={storms} wind={wind} loading={loading} />
+        <HurricaneMap storms={storms} wind={wind} loading={loading} onCenterChange={handleMapCenter} />
 
         <TopBar
           storms={storms}
@@ -198,7 +204,7 @@ export default function HurricaneDashboard() {
           </motion.div>
         )}
 
-        <WeatherWidget lat={CENTER_LAT} lng={CENTER_LNG} />
+        <WeatherWidget lat={weatherCenter.lat} lng={weatherCenter.lng} />
       </div>
 
       {/* Sidebar */}

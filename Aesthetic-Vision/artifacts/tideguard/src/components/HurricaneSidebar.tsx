@@ -66,6 +66,78 @@ function StormCard({ storm }: { storm: HurricaneStorm }) {
   );
 }
 
+const IMPACT_COUNTIES = [
+  { name: "Lee", customers: 280 },
+  { name: "Collier", customers: 140 },
+  { name: "Charlotte", customers: 80 },
+  { name: "Sarasota", customers: 120 },
+];
+
+function outageRange(cat: number): [number, number] {
+  const map: Record<number, [number, number]> = {
+    0: [2, 8], 1: [15, 30], 2: [35, 55], 3: [55, 75], 4: [75, 90], 5: [88, 98],
+  };
+  return map[Math.min(Math.max(cat, 0), 5)];
+}
+
+function damageLabel(cat: number): { text: string; color: string } {
+  if (cat === 0) return { text: "Minor / Downed branches", color: "#22c55e" };
+  if (cat === 1) return { text: "Roof damage, broken windows", color: "#84cc16" };
+  if (cat === 2) return { text: "Major roof & siding damage", color: "#f59e0b" };
+  if (cat === 3) return { text: "Structural failure likely", color: "#ef4444" };
+  if (cat === 4) return { text: "Catastrophic — evacuate Zone A-C", color: "#dc2626" };
+  return { text: "Near-total destruction", color: "#7c3aed" };
+}
+
+function StormImpactModel({ storms }: { storms: HurricaneStorm[] }) {
+  if (storms.length === 0) return null;
+  const storm = storms[0];
+  const [lo, hi] = outageRange(storm.category);
+  const dmg = damageLabel(storm.category);
+  return (
+    <div className="px-4 pb-2">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="text-[10px] text-muted-foreground uppercase tracking-widest">Impact Model</div>
+        <span className="text-[8px] px-1.5 py-0.5 rounded font-semibold"
+          style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.2)" }}>
+          ESTIMATE
+        </span>
+      </div>
+      {/* Damage type */}
+      <div className="rounded-lg px-3 py-2 mb-2"
+        style={{ background: dmg.color + "0a", border: `1px solid ${dmg.color}25` }}>
+        <div className="text-[10px] text-muted-foreground mb-0.5">Structural Damage</div>
+        <div className="text-xs font-semibold" style={{ color: dmg.color }}>{dmg.text}</div>
+      </div>
+      {/* Power outages by county */}
+      <div className="text-[10px] text-muted-foreground mb-1.5">
+        Est. Power Outages — {storm.name} at Cat {storm.category}
+      </div>
+      <div className="space-y-1">
+        {IMPACT_COUNTIES.map(({ name, customers }) => {
+          const estLo = Math.round(customers * lo / 100);
+          const estHi = Math.round(customers * hi / 100);
+          const pct = (lo + hi) / 2;
+          return (
+            <div key={name} className="flex items-center gap-2">
+              <span className="text-[10px] text-muted-foreground w-16 flex-shrink-0">{name} Co.</span>
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden"
+                style={{ background: "rgba(255,255,255,0.06)" }}>
+                <div className="h-full rounded-full transition-all"
+                  style={{ width: `${pct}%`, background: dmg.color }} />
+              </div>
+              <span className="text-[10px] font-medium flex-shrink-0 w-20 text-right"
+                style={{ color: "hsl(210 30% 65%)" }}>
+                {estLo}k–{estHi}k
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function buildHurricaneQuestions(storms: HurricaneStorm[], alerts: HurricaneAlert[], wind: WindData | null) {
   const hasActiveStorm = storms.length > 0;
   const hasWarning = alerts.some((a) => a.event.includes("Warning"));
@@ -368,6 +440,9 @@ export default function HurricaneSidebar({
                       </div>
                     </div>
                   </div>
+
+                  {/* Storm Impact Model */}
+                  <StormImpactModel storms={storms} />
 
                   {/* Hurricane News Articles */}
                   <div className="px-4 pb-3">

@@ -2,34 +2,38 @@ import { Router, type IRouter } from "express";
 
 const router: IRouter = Router();
 
-const FLOOD_API_KEY = process.env.NATIONAL_FLOOD_API_KEY ?? "";
-const FLOOD_API_BASE = "https://api.nationalflooddata.com";
-
-// Proxy /api/flood-zones?lat=&lng= → National Flood Data /floodmapraw
-router.get("/flood-zones", async (req, res) => {
-  const { lat, lng } = req.query;
-  if (!lat || !lng) {
-    res.status(400).json({ error: "lat and lng required" });
-    return;
-  }
-
+// Proxy /api/flood-zones → FEMA NFHL ArcGIS REST API (free, no key required)
+// Returns GeoJSON FeatureCollection of SW Florida flood hazard areas
+router.get("/flood-zones", async (_req, res) => {
   try {
-    const url = `${FLOOD_API_BASE}/floodmapraw?lat=${lat}&lng=${lng}&size=0.08&excludex=false&geojson=true`;
-    const upstream = await fetch(url, {
-      headers: { "X-API-KEY": FLOOD_API_KEY },
-      signal: AbortSignal.timeout(10000),
+    // SW Florida bounding box: Lee, Collier, Charlotte, Sarasota counties
+    const geometry = JSON.stringify({
+      xmin: -82.7, ymin: 25.7, xmax: -81.3, ymax: 27.5,
+      spatialReference: { wkid: 4326 },
     });
 
+    const url =
+      "https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/28/query" +
+      "?geometry=" + encodeURIComponent(geometry) +
+      "&geometryType=esriGeometryEnvelope" +
+      "&spatialRel=esriSpatialRelIntersects" +
+      "&outFields=FLD_ZONE%2CZONE_SUBTY%2CSFHA_TF" +
+      "&returnGeometry=true" +
+      "&f=geojson" +
+      "&resultRecordCount=2000";
+
+    const upstream = await fetch(url, { signal: AbortSignal.timeout(20000) });
+
     if (!upstream.ok) {
-      req.log.warn({ status: upstream.status }, "Flood API error");
-      res.status(upstream.status).json({ error: "Flood API error" });
+      res.status(upstream.status).json({ error: "FEMA API error" });
       return;
     }
 
     const data = await upstream.json();
+    // Cache for 1 hour since flood zones rarely change
+    res.set("Cache-Control", "public, max-age=3600");
     res.json(data);
   } catch (err) {
-    req.log.error({ err }, "Flood zones fetch failed");
     res.status(500).json({ error: "Flood zones unavailable" });
   }
 });

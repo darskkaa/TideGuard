@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -8,6 +8,7 @@ import {
   Marker,
   Popup,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import { useEffect } from "react";
 import L from "leaflet";
@@ -23,6 +24,20 @@ interface Props {
   storms: HurricaneStorm[];
   wind: WindData | null;
   loading: boolean;
+  onCenterChange?: (lat: number, lng: number) => void;
+}
+
+function MapCenterTracker({ onCenterChange }: { onCenterChange?: (lat: number, lng: number) => void }) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useMapEvents({
+    moveend(e) {
+      if (!onCenterChange) return;
+      const c = e.target.getCenter();
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => onCenterChange(c.lat, c.lng), 1200);
+    },
+  });
+  return null;
 }
 
 // ── Shelter Data (SW Florida) ──
@@ -250,66 +265,53 @@ function floodZoneColor(zone: string): string {
   return "#3b82f6";                                  // other / minimal
 }
 
-// SW Florida sample points — 8 strategic coastal locations
-const FLOOD_SAMPLE_POINTS: [number, number][] = [
-  [26.45, -82.05],   // Fort Myers / Cape Coral
-  [26.36, -81.95],   // Fort Myers Beach
-  [26.15, -81.80],   // Naples coastal
-  [25.95, -81.69],   // Marco Island
-  [26.72, -82.07],   // Cape Coral north
-  [26.93, -82.05],   // Punta Gorda / Charlotte Harbor
-  [26.96, -82.36],   // Englewood / Boca Grande
-  [27.22, -82.52],   // Sarasota / Siesta Key
-];
-
-interface FloodRegion {
-  fld_zone?: string;
-  geojson?: unknown;
-}
 
 function FloodZoneLayer() {
   const map = useMap();
   useEffect(() => {
-    const layers: L.GeoJSON[] = [];
+    let layer: L.GeoJSON | null = null;
     let cancelled = false;
 
-    Promise.allSettled(
-      FLOOD_SAMPLE_POINTS.map(([lat, lng]) =>
-        fetch(`/api/flood-zones?lat=${lat}&lng=${lng}`).then((r) => r.json())
-      )
-    ).then((results) => {
-      if (cancelled) return;
-      results.forEach((result) => {
-        if (result.status !== "fulfilled") return;
-        const regions: FloodRegion[] = result.value?.result?.floodregions ?? [];
-        regions.forEach((region) => {
-          if (!region.geojson) return;
-          try {
-            const geojson = typeof region.geojson === "string"
-              ? JSON.parse(region.geojson as string)
-              : region.geojson;
-            const color = floodZoneColor(region.fld_zone ?? "");
-            const layer = L.geoJSON(geojson as Parameters<typeof L.geoJSON>[0], {
-              style: {
-                color,
-                fillColor: color,
-                fillOpacity: 0.30,
-                weight: 1.5,
-                opacity: 0.8,
-              },
-            });
-            layer.addTo(map);
-            layers.push(layer);
-          } catch {
-            // skip malformed geojson
-          }
+    // Single call — FEMA NFHL via proxy (free, no API key required)
+    fetch("/api/flood-zones")
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled || !Array.isArray(data.features)) return;
+        layer = L.geoJSON(data as Parameters<typeof L.geoJSON>[0], {
+          style: (feature) => {
+            const zone: string = feature?.properties?.FLD_ZONE ?? "";
+            const color = floodZoneColor(zone);
+            return {
+              color,
+              fillColor: color,
+              fillOpacity: 0.22,
+              weight: 1.2,
+              opacity: 0.7,
+            };
+          },
+          onEachFeature: (feature, lyr) => {
+            const zone = feature?.properties?.FLD_ZONE ?? "Unknown";
+            lyr.bindPopup(
+              `<div style="background:hsl(216 32% 8%);border:1px solid hsl(213 35% 14%);border-radius:8px;padding:10px 12px;color:#e2e8f0;font-family:Inter,sans-serif;font-size:12px;min-width:140px">
+                <strong style="color:${floodZoneColor(zone)}">FEMA Zone ${zone}</strong>
+                <div style="color:#94a3b8;font-size:11px;margin-top:4px">
+                  ${zone.startsWith("V") ? "Coastal high-hazard — wave action + flooding" :
+                    zone === "AE" || zone === "A" ? "1% annual flood risk — NFIP required" :
+                    zone === "X" || zone === "B" || zone === "C" ? "Minimal to moderate flood risk" :
+                    "Flood zone boundary"}
+                </div>
+              </div>`,
+              { className: "leaflet-popup-custom" }
+            );
+          },
         });
-      });
-    });
+        layer.addTo(map);
+      })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
-      layers.forEach((l) => { try { map.removeLayer(l); } catch {} });
+      if (layer) { try { map.removeLayer(layer); } catch {} }
     };
   }, [map]);
   return null;
@@ -450,7 +452,7 @@ function LoadingOverlay({ show }: { show: boolean }) {
   );
 }
 
-export default function HurricaneMap({ storms, wind: _wind, loading }: Props) {
+export default function HurricaneMap({ storms, wind: _wind, loading, onCenterChange }: Props) {
   const [showFlood, setShowFlood] = useState(false);
   const [showEvac, setShowEvac] = useState(false);
   const [showShelters, setShowShelters] = useState(false);
@@ -481,6 +483,7 @@ export default function HurricaneMap({ storms, wind: _wind, loading }: Props) {
 
         <StormMarkers storms={storms} />
         <MapFlyTo storms={storms} />
+        <MapCenterTracker onCenterChange={onCenterChange} />
       </MapContainer>
 
       <OverlayControls

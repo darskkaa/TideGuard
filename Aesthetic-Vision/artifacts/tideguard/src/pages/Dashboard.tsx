@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Shield, RefreshCw, AlertTriangle, MapPin } from "lucide-react";
 import TideMap from "@/components/TideMap";
@@ -143,6 +143,13 @@ export default function Dashboard() {
   const [newsMessage, setNewsMessage] = useState<string | undefined>(undefined);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [weatherCenter, setWeatherCenter] = useState({ lat: CENTER_LAT, lng: CENTER_LNG });
+  const weatherTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMapCenter = useCallback((lat: number, lng: number) => {
+    if (weatherTimerRef.current) clearTimeout(weatherTimerRef.current);
+    weatherTimerRef.current = setTimeout(() => setWeatherCenter({ lat, lng }), 800);
+  }, []);
 
   const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "").replace("/", "");
   const apiBase = "";
@@ -205,7 +212,7 @@ export default function Dashboard() {
     <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
       {/* Map fills the left side */}
       <div className="flex-1 relative" style={{ marginRight: 380 }}>
-        <TideMap features={features} wind={wind} loading={fwcLoading} />
+        <TideMap features={features} wind={wind} loading={fwcLoading} onCenterChange={handleMapCenter} />
 
         {/* Top bar sits over the map */}
         <TopBar
@@ -239,7 +246,7 @@ export default function Dashboard() {
         )}
 
         {/* Weather Widget */}
-        <WeatherWidget lat={CENTER_LAT} lng={CENTER_LNG} />
+        <WeatherWidget lat={weatherCenter.lat} lng={weatherCenter.lng} />
       </div>
 
       {/* Right sidebar */}

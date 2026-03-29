@@ -5,6 +5,7 @@ import {
   CircleMarker,
   Popup,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import type { FWCFeature } from "@/lib/fwc-api";
 import { getAbundanceLevel, getAbundanceColor, getAbundanceLabel } from "@/lib/fwc-api";
@@ -17,6 +18,20 @@ interface Props {
   features: FWCFeature[];
   wind: WindData | null;
   loading: boolean;
+  onCenterChange?: (lat: number, lng: number) => void;
+}
+
+function MapCenterTracker({ onCenterChange }: { onCenterChange?: (lat: number, lng: number) => void }) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useMapEvents({
+    moveend(e) {
+      if (!onCenterChange) return;
+      const c = e.target.getCenter();
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => onCenterChange(c.lat, c.lng), 1200);
+    },
+  });
+  return null;
 }
 
 function WindCompass({ wind }: { wind: WindData | null }) {
@@ -211,7 +226,7 @@ function LoadingOverlay({ show }: { show: boolean }) {
   );
 }
 
-export default function TideMap({ features, wind, loading }: Props) {
+export default function TideMap({ features, wind, loading, onCenterChange }: Props) {
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -227,6 +242,7 @@ export default function TideMap({ features, wind, loading }: Props) {
           maxZoom={19}
         />
         <FWCMarkers features={features} />
+        <MapCenterTracker onCenterChange={onCenterChange} />
       </MapContainer>
 
       <WindCompass wind={wind} />
