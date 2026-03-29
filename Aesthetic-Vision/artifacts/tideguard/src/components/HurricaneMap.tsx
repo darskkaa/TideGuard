@@ -49,45 +49,64 @@ const shelterIcon = L.divIcon({
   iconAnchor: [12, 12],
 });
 
-// ── Evacuation Zones (simplified SW FL polygons) ──
-const EVAC_ZONES: Array<{ zone: string; color: string; positions: [number, number][] }> = [
-  {
-    zone: "A",
-    color: "#ef4444",
-    positions: [
-      [26.45, -82.18], [26.45, -81.87], [26.38, -81.87], [26.38, -81.95],
-      [26.33, -81.95], [26.33, -82.10], [26.40, -82.18],
-    ],
-  },
-  {
-    zone: "A",
-    color: "#ef4444",
-    positions: [
-      [26.65, -82.02], [26.65, -81.90], [26.58, -81.90], [26.58, -81.95],
-      [26.55, -81.95], [26.55, -82.02],
-    ],
-  },
-  {
-    zone: "B",
-    color: "#f97316",
-    positions: [
-      [26.50, -81.87], [26.50, -81.78], [26.42, -81.78], [26.42, -81.87],
-    ],
-  },
-  {
-    zone: "B",
-    color: "#f97316",
-    positions: [
-      [26.70, -81.90], [26.70, -81.82], [26.62, -81.82], [26.62, -81.90],
-    ],
-  },
-  {
-    zone: "C",
-    color: "#fbbf24",
-    positions: [
-      [26.55, -81.78], [26.55, -81.70], [26.47, -81.70], [26.47, -81.78],
-    ],
-  },
+// ── Evacuation Zones — SW Florida (Lee, Collier, Charlotte, Sarasota counties) ──
+const EVAC_ZONES: Array<{ zone: string; label: string; color: string; positions: [number, number][] }> = [
+  // ── ZONE A — immediate coastal / barrier islands ──
+  // Lee: Fort Myers Beach / Estero Island
+  { zone: "A", label: "Lee Co — Fort Myers Beach", color: "#ef4444",
+    positions: [[26.507,-81.977],[26.507,-81.930],[26.364,-81.928],[26.364,-81.962]] },
+  // Lee: Cape Coral SW waterfront & Pine Island Sound
+  { zone: "A", label: "Lee Co — Cape Coral coastal", color: "#ef4444",
+    positions: [[26.668,-82.095],[26.668,-82.000],[26.535,-81.998],[26.490,-82.015],[26.490,-82.068],[26.560,-82.092]] },
+  // Lee: Sanibel / Captiva
+  { zone: "A", label: "Lee Co — Sanibel / Captiva", color: "#ef4444",
+    positions: [[26.537,-82.120],[26.537,-81.980],[26.433,-81.978],[26.433,-82.102]] },
+  // Collier: Naples coastal strip
+  { zone: "A", label: "Collier Co — Naples coast", color: "#ef4444",
+    positions: [[26.195,-81.825],[26.195,-81.785],[26.075,-81.775],[26.055,-81.800],[26.055,-81.828]] },
+  // Collier: Marco Island
+  { zone: "A", label: "Collier Co — Marco Island", color: "#ef4444",
+    positions: [[25.978,-81.738],[25.978,-81.635],[25.902,-81.635],[25.902,-81.722]] },
+  // Charlotte: Boca Grande / Gasparilla Island
+  { zone: "A", label: "Charlotte Co — Boca Grande", color: "#ef4444",
+    positions: [[26.775,-82.375],[26.775,-82.320],[26.678,-82.318],[26.678,-82.368]] },
+  // Charlotte: Englewood / Manasota Key
+  { zone: "A", label: "Charlotte Co — Englewood coast", color: "#ef4444",
+    positions: [[26.998,-82.392],[26.998,-82.348],[26.858,-82.340],[26.858,-82.385]] },
+  // Charlotte: Punta Gorda waterfront
+  { zone: "A", label: "Charlotte Co — Punta Gorda waterfront", color: "#ef4444",
+    positions: [[26.960,-82.090],[26.960,-82.005],[26.900,-82.003],[26.900,-82.080]] },
+  // Sarasota: Siesta Key / barrier islands
+  { zone: "A", label: "Sarasota Co — Siesta Key", color: "#ef4444",
+    positions: [[27.298,-82.570],[27.298,-82.532],[27.178,-82.515],[27.178,-82.550]] },
+  // Sarasota: Venice Island / Nokomis Beach
+  { zone: "A", label: "Sarasota Co — Venice coast", color: "#ef4444",
+    positions: [[27.122,-82.465],[27.122,-82.430],[27.002,-82.420],[27.002,-82.455]] },
+
+  // ── ZONE B — near-coastal, low elevation ──
+  // Lee County Zone B
+  { zone: "B", label: "Lee Co — Zone B", color: "#f97316",
+    positions: [[26.720,-82.110],[26.720,-81.878],[26.492,-81.875],[26.492,-82.012],[26.610,-82.112]] },
+  // Collier County Zone B
+  { zone: "B", label: "Collier Co — Zone B", color: "#f97316",
+    positions: [[26.375,-81.862],[26.375,-81.722],[25.902,-81.712],[25.902,-81.842]] },
+  // Charlotte County Zone B
+  { zone: "B", label: "Charlotte Co — Zone B", color: "#f97316",
+    positions: [[27.022,-82.220],[27.022,-81.988],[26.872,-81.985],[26.872,-82.202]] },
+  // Sarasota County Zone B
+  { zone: "B", label: "Sarasota Co — Zone B", color: "#f97316",
+    positions: [[27.395,-82.645],[27.395,-82.445],[27.030,-82.408],[27.030,-82.612]] },
+
+  // ── ZONE C — moderate risk inland ──
+  // Lee County Zone C
+  { zone: "C", label: "Lee Co — Zone C", color: "#fbbf24",
+    positions: [[26.825,-82.058],[26.825,-81.825],[26.545,-81.822],[26.545,-82.015]] },
+  // Collier County Zone C
+  { zone: "C", label: "Collier Co — Zone C", color: "#fbbf24",
+    positions: [[26.385,-81.908],[26.385,-81.705],[25.995,-81.700],[25.995,-81.895]] },
+  // Charlotte / South Sarasota Zone C
+  { zone: "C", label: "Charlotte/Sarasota — Zone C", color: "#fbbf24",
+    positions: [[27.155,-82.265],[27.155,-81.988],[26.975,-81.985],[26.975,-82.248]] },
 ];
 
 // ── Map Overlay Toggle Controls ──
@@ -113,7 +132,7 @@ function OverlayControls({
   ];
 
   return (
-    <div className="absolute top-20 left-4 z-[1000]">
+    <div className="absolute top-16 left-4 z-[1000]">
       <div
         className="glass-panel rounded-xl p-2 space-y-1.5"
         style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)", minWidth: 140 }}
@@ -206,12 +225,12 @@ function EvacZonePolygons() {
           <Popup>
             <div style={popupStyle}>
               <div style={{ fontWeight: 700, fontSize: 13, color: z.color }}>
-                Evacuation Zone {z.zone}
+                Zone {z.zone} — {z.label}
               </div>
               <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 4 }}>
-                {z.zone === "A" ? "Mandatory evacuation for Cat 1+ hurricanes" :
-                 z.zone === "B" ? "Mandatory evacuation for Cat 2+ hurricanes" :
-                 "Mandatory evacuation for Cat 3+ hurricanes"}
+                {z.zone === "A" ? "Evacuate for any hurricane threat. Highest surge risk." :
+                 z.zone === "B" ? "Evacuate for Cat 2+ hurricanes." :
+                 "Evacuate for Cat 3+ hurricanes."}
               </div>
             </div>
           </Popup>
@@ -221,13 +240,20 @@ function EvacZonePolygons() {
   );
 }
 
-// FEMA Flood Zones using ArcGIS MapServer tile export (works at all zoom levels)
+// FEMA Flood Zones via WMS — renders at all zoom levels
 function FemaFloodLayer() {
   const map = useMap();
   useEffect(() => {
-    const layer = L.tileLayer(
-      "https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/tile/{z}/{y}/{x}",
-      { opacity: 0.45, attribution: "FEMA NFHL", maxZoom: 19 }
+    const layer = L.tileLayer.wms(
+      "https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/WMSServer",
+      {
+        layers: "28",        // S_FLD_HAZ_AR — flood hazard area polygons
+        format: "image/png",
+        transparent: true,
+        opacity: 0.55,
+        version: "1.1.1",
+        attribution: "FEMA NFHL",
+      }
     );
     layer.addTo(map);
     return () => { map.removeLayer(layer); };

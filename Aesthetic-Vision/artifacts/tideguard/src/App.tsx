@@ -19,8 +19,9 @@ function NavToggle() {
     <div
       style={{
         position: "fixed",
-        top: 76,
-        left: 16,
+        bottom: 24,
+        left: "50%",
+        transform: "translateX(-50%)",
         zIndex: 9998,
         display: "flex",
         gap: 6,
