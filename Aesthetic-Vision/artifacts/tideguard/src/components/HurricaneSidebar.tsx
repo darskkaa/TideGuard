@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Wind, AlertTriangle, MessageSquare, X, ChevronRight, Newspaper } from "lucide-react";
+import { Wind, AlertTriangle, MessageSquare, X, ChevronRight, Newspaper, ClipboardCopy, Check } from "lucide-react";
 import type { HurricaneStorm, HurricaneAlert } from "@/lib/hurricane-api";
 import { getCategoryColor, getCategoryLabel, getThreatLevel } from "@/lib/hurricane-api";
 import type { WindData } from "@/lib/wind-api";
@@ -82,6 +82,7 @@ export default function HurricaneSidebar({
   dataTimestamp,
 }: SidebarProps) {
   const [activeTab, setActiveTab] = useState<"intel" | "chat">("intel");
+  const [copied, setCopied] = useState(false);
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(true);
   const [newsSource, setNewsSource] = useState<"live" | "fallback" | null>(null);
@@ -104,6 +105,39 @@ export default function HurricaneSidebar({
   useEffect(() => {
     loadNews();
   }, [loadNews]);
+
+  const copyContext = () => {
+    const lines: string[] = [
+      `=== StormGuard Hurricane Context (${dataTimestamp}) ===`,
+      `Data Source: ${dataSource.toUpperCase()}`,
+      "",
+    ];
+    if (storms.length === 0) {
+      lines.push("Active Storms: None");
+    } else {
+      lines.push("Active Storms:");
+      storms.forEach((s) => {
+        lines.push(`• ${s.name} — ${getCategoryLabel(s)}, ${s.intensity} mph winds, ${s.pressure} mb, moving ${s.movement}`);
+      });
+    }
+    lines.push(``, `Threat Level: ${threat.text}`);
+    if (wind) {
+      lines.push(`Wind: ${wind.directionLabel} at ${wind.speed} km/h — ${wind.isOnshore ? "ONSHORE (surge risk elevated)" : "OFFSHORE (reduced coastal impact)"}`);
+    }
+    if (alerts.length > 0) {
+      lines.push("", "Active Warnings:");
+      alerts.forEach((a) => lines.push(`• ${a.event}: ${a.areaDesc}`));
+    }
+    if (articles.length > 0) {
+      lines.push("", "Recent Hurricane News:");
+      articles.slice(0, 4).forEach((a) => lines.push(`• [${a.source}] ${a.title}`));
+    }
+    lines.push("", "Use this context to answer my question about current hurricane conditions.");
+    navigator.clipboard.writeText(lines.join("\n")).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   const tabs = [
     { id: "intel" as const, label: "Intel Feed", icon: Newspaper },
@@ -306,10 +340,25 @@ export default function HurricaneSidebar({
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
               StormGuard AI
             </span>
-            <button onClick={() => setActiveTab("intel")}
-              className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-              <X size={16} className="text-muted-foreground" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={copyContext}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-150"
+                style={{
+                  background: copied ? "rgba(34,197,94,0.12)" : "rgba(0,196,228,0.08)",
+                  border: copied ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(0,196,228,0.2)",
+                  color: copied ? "#22c55e" : "hsl(191 90% 46%)",
+                }}
+                title="Copy live context to paste into chat"
+              >
+                {copied ? <Check size={11} /> : <ClipboardCopy size={11} />}
+                {copied ? "Copied!" : "Copy Context"}
+              </button>
+              <button onClick={() => setActiveTab("intel")}
+                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                <X size={16} className="text-muted-foreground" />
+              </button>
+            </div>
           </div>
           <div className="flex-1 min-h-0 p-4">
             <iframe

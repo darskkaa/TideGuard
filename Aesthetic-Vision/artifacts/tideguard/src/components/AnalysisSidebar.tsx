@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wind, Newspaper, MessageSquare, X, ChevronRight } from "lucide-react";
+import { Wind, Newspaper, MessageSquare, X, ChevronRight, ClipboardCopy, Check } from "lucide-react";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
 import type { AbundanceLevel } from "@/lib/fwc-api";
@@ -75,9 +75,29 @@ export default function AnalysisSidebar({
   dataTimestamp,
 }: SidebarProps) {
   const [activeTab, setActiveTab] = useState<"intel" | "chat">("intel");
+  const [copied, setCopied] = useState(false);
 
-  // Chat tab opens fullscreen; closing reverts to intel
   const handleCloseChat = () => setActiveTab("intel");
+
+  const copyContext = () => {
+    const lines: string[] = [
+      `=== TideGuard Red Tide Context (${dataTimestamp}) ===`,
+      "",
+      `FWC Bloom Level: ${fwcLevel}`,
+    ];
+    if (wind) {
+      lines.push(`Wind: ${wind.directionLabel} at ${wind.speed} km/h — ${wind.isOnshore ? "ONSHORE (toxins drifting toward coast)" : "OFFSHORE (bloom dispersing away from shore)"}`);
+    }
+    if (articles.length > 0) {
+      lines.push("", "Recent Red Tide News:");
+      articles.slice(0, 4).forEach((a) => lines.push(`• [${a.source}] ${a.title}`));
+    }
+    lines.push("", "Use this context to answer my question about current red tide conditions.");
+    navigator.clipboard.writeText(lines.join("\n")).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <div className="absolute right-0 top-0 h-full z-[1000]" style={{ width: 420 }}>
@@ -249,12 +269,27 @@ export default function AnalysisSidebar({
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
               TideGuard AI
             </span>
-            <button
-              onClick={handleCloseChat}
-              className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <X size={16} className="text-muted-foreground" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={copyContext}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-150"
+                style={{
+                  background: copied ? "rgba(34,197,94,0.12)" : "rgba(0,196,228,0.08)",
+                  border: copied ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(0,196,228,0.2)",
+                  color: copied ? "#22c55e" : "hsl(191 90% 46%)",
+                }}
+                title="Copy live context to paste into chat"
+              >
+                {copied ? <Check size={11} /> : <ClipboardCopy size={11} />}
+                {copied ? "Copied!" : "Copy Context"}
+              </button>
+              <button
+                onClick={handleCloseChat}
+                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X size={16} className="text-muted-foreground" />
+              </button>
+            </div>
           </div>
           <div className="flex-1 min-h-0 p-4">
             <iframe
