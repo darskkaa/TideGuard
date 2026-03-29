@@ -301,9 +301,6 @@ export default function AnalysisSidebar({
                 <WindRow wind={wind} />
               </div>
 
-              {/* Common Questions */}
-              <CommonQuestions fwcLevel={fwcLevel} wind={wind} />
-
               {/* Articles — scrollable */}
               <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-3">
                 {articlesLoading ? (
@@ -347,9 +344,6 @@ export default function AnalysisSidebar({
                             <div className="flex items-center gap-1.5 mb-1">
                               <span className="text-[11px] font-semibold truncate" style={{ color: "hsl(210 18% 55%)" }}>
                                 {article.source}
-                              </span>
-                              <span className="text-[11px] text-muted-foreground flex-shrink-0">
-                                {timeAgo(article.publishedAt)}
                               </span>
                             </div>
                             <div className="text-xs font-medium leading-tight line-clamp-2" style={{ color: "hsl(210 30% 78%)" }}>

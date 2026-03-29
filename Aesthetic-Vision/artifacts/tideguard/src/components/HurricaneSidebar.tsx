@@ -369,9 +369,6 @@ export default function HurricaneSidebar({
                     </div>
                   </div>
 
-                  {/* Common Questions */}
-                  <HurricaneCommonQuestions storms={storms} alerts={alerts} wind={wind} />
-
                   {/* Hurricane News Articles */}
                   <div className="px-4 pb-3">
                     <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">Hurricane News</div>
@@ -410,9 +407,6 @@ export default function HurricaneSidebar({
                                 <div className="flex items-center gap-1.5 mb-1">
                                   <span className="text-[11px] font-semibold text-muted-foreground truncate">
                                     {article.source}
-                                  </span>
-                                  <span className="text-[11px] text-muted-foreground/60 flex-shrink-0">
-                                    {timeAgo(article.publishedAt)}
                                   </span>
                                 </div>
                                 <div className="text-xs font-medium leading-tight line-clamp-2"
