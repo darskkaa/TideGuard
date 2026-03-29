@@ -240,23 +240,77 @@ function EvacZonePolygons() {
   );
 }
 
-// FEMA Flood Zones via WMS — renders at all zoom levels
-function FemaFloodLayer() {
+// Flood zone color by FEMA designation
+function floodZoneColor(zone: string): string {
+  if (!zone) return "#3b82f6";
+  const z = zone.toUpperCase();
+  if (z.startsWith("V")) return "#dc2626";          // VE/V — coastal wave hazard (highest)
+  if (z === "A" || z === "AE" || z === "AH" || z === "AO" || z.startsWith("A1") || z.startsWith("AR")) return "#ef4444"; // 1% annual flood
+  if (z === "X500" || z === "B") return "#f59e0b";  // 0.2% annual flood
+  return "#3b82f6";                                  // other / minimal
+}
+
+// SW Florida sample points — 8 strategic coastal locations
+const FLOOD_SAMPLE_POINTS: [number, number][] = [
+  [26.45, -82.05],   // Fort Myers / Cape Coral
+  [26.36, -81.95],   // Fort Myers Beach
+  [26.15, -81.80],   // Naples coastal
+  [25.95, -81.69],   // Marco Island
+  [26.72, -82.07],   // Cape Coral north
+  [26.93, -82.05],   // Punta Gorda / Charlotte Harbor
+  [26.96, -82.36],   // Englewood / Boca Grande
+  [27.22, -82.52],   // Sarasota / Siesta Key
+];
+
+interface FloodRegion {
+  fld_zone?: string;
+  geojson?: unknown;
+}
+
+function FloodZoneLayer() {
   const map = useMap();
   useEffect(() => {
-    const layer = L.tileLayer.wms(
-      "https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/WMSServer",
-      {
-        layers: "28",        // S_FLD_HAZ_AR — flood hazard area polygons
-        format: "image/png",
-        transparent: true,
-        opacity: 0.55,
-        version: "1.1.1",
-        attribution: "FEMA NFHL",
-      }
-    );
-    layer.addTo(map);
-    return () => { map.removeLayer(layer); };
+    const layers: L.GeoJSON[] = [];
+    let cancelled = false;
+
+    Promise.allSettled(
+      FLOOD_SAMPLE_POINTS.map(([lat, lng]) =>
+        fetch(`/api/flood-zones?lat=${lat}&lng=${lng}`).then((r) => r.json())
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      results.forEach((result) => {
+        if (result.status !== "fulfilled") return;
+        const regions: FloodRegion[] = result.value?.result?.floodregions ?? [];
+        regions.forEach((region) => {
+          if (!region.geojson) return;
+          try {
+            const geojson = typeof region.geojson === "string"
+              ? JSON.parse(region.geojson as string)
+              : region.geojson;
+            const color = floodZoneColor(region.fld_zone ?? "");
+            const layer = L.geoJSON(geojson as Parameters<typeof L.geoJSON>[0], {
+              style: {
+                color,
+                fillColor: color,
+                fillOpacity: 0.30,
+                weight: 1.5,
+                opacity: 0.8,
+              },
+            });
+            layer.addTo(map);
+            layers.push(layer);
+          } catch {
+            // skip malformed geojson
+          }
+        });
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      layers.forEach((l) => { try { map.removeLayer(l); } catch {} });
+    };
   }, [map]);
   return null;
 }
@@ -416,8 +470,8 @@ export default function HurricaneMap({ storms, wind: _wind, loading }: Props) {
           maxZoom={19}
         />
 
-        {/* FEMA Flood Zones via ArcGIS REST export */}
-        {showFlood && <FemaFloodLayer />}
+        {/* FEMA Flood Zones — real GeoJSON via National Flood Data API */}
+        {showFlood && <FloodZoneLayer />}
 
         {/* Evacuation Zone Polygons */}
         {showEvac && <EvacZonePolygons />}

@@ -393,9 +393,12 @@ export default function AnalysisSidebar({
             className="flex items-center justify-between px-4 py-2 flex-shrink-0"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
           >
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-              TideGuard AI
-            </span>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "hsl(191 90% 46%)", boxShadow: "0 0 8px hsl(191 90% 46%)" }} />
+              <span className="text-sm font-bold tracking-wide" style={{ color: "hsl(191 90% 46%)" }}>
+                TideGuard AI
+              </span>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={copyContext}

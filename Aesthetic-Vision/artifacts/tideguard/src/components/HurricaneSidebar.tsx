@@ -445,9 +445,12 @@ export default function HurricaneSidebar({
           background: "rgba(7, 12, 22, 0.97)", display: "flex", flexDirection: "column" }}>
           <div className="flex items-center justify-between px-4 py-2 flex-shrink-0"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-              StormGuard AI
-            </span>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#ef4444", boxShadow: "0 0 8px #ef4444" }} />
+              <span className="text-sm font-bold tracking-wide" style={{ color: "#ef4444" }}>
+                StormGuard AI
+              </span>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={copyContext}
