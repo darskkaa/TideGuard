@@ -402,8 +402,12 @@ const FRAME_LABELS = ["-2h", "-90m", "-60m", "-30m", "LIVE"] as const;
 function MapFlyTo({ storms }: { storms: HurricaneStorm[] }) {
   const map = useMap();
   useEffect(() => {
-    if (storms.length > 0) {
-      map.setView([storms[0].lat, storms[0].lng], 7, { animate: true });
+    if (storms.length === 0) return;
+    const atlantic = storms.filter((s) => (s.basin ?? "Atlantic") === "Atlantic");
+    if (atlantic.length > 0) {
+      map.setView([atlantic[0].lat, atlantic[0].lng], 6, { animate: true });
+    } else {
+      map.fitBounds(storms.map((s) => [s.lat, s.lng] as [number, number]), { paddingTopLeft: [160, 70], paddingBottomRight: [window.innerWidth >= 768 ? 400 : 40, 70], maxZoom: 5, animate: true });
     }
   }, [storms, map]);
   return null;

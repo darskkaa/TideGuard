@@ -43,6 +43,10 @@ function StormCard({ storm }: { storm: HurricaneStorm }) {
           <div className="w-2.5 h-2.5 rounded-full animate-pulse"
             style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
           <span className="text-sm font-bold text-foreground">{storm.name}</span>
+          {storm.basin && storm.basin !== "Atlantic" && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded font-semibold"
+              style={{ background: "rgba(255,255,255,0.06)", color: "#94a3b8" }}>{storm.basin}</span>
+          )}
           {storm.isDemo && (
             <span className="text-[9px] px-1.5 py-0.5 rounded font-semibold"
               style={{ background: "rgba(255,255,255,0.06)", color: "#64748b" }}>DEMO</span>
@@ -90,8 +94,8 @@ function damageLabel(cat: number): { text: string; color: string } {
 }
 
 function StormImpactModel({ storms }: { storms: HurricaneStorm[] }) {
-  if (storms.length === 0) return null;
-  const storm = storms[0];
+  const storm = storms.find((s) => (s.basin ?? "Atlantic") === "Atlantic");
+  if (!storm) return null;
   const [lo, hi] = outageRange(storm.category);
   const dmg = damageLabel(storm.category);
   return (
@@ -299,7 +303,7 @@ export function HurricaneIntelContent({
           {storms.length === 0 ? (
             <div className="rounded-xl p-3 text-center"
               style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div className="text-xs text-muted-foreground">No active tropical cyclones</div>
+              <div className="text-xs text-muted-foreground">No active tropical cyclones worldwide</div>
             </div>
           ) : (
             storms.map((s) => <StormCard key={s.id} storm={s} />)

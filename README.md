@@ -93,7 +93,7 @@ On screens under 768px, both dashboards switch to a full-screen map layout. A fi
 |---|---|---|
 | Red tide bloom samples | FWC GIS HAB for DEP Dashboard (MapServer) | None |
 | Weather and wind | Open-Meteo API | None |
-| Hurricane tracks | NOAA National Hurricane Center | None |
+| Hurricane tracks | NOAA NHC (Atlantic/Pacific) + GDACS (worldwide) | None |
 | Weather alerts | NOAA Weather API | None |
 | Animated radar | RainViewer tiles | None |
 | Base map | Esri World Dark Gray tiles | None |

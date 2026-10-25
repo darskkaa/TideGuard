@@ -22,6 +22,7 @@ export interface HurricaneStorm {
   lastUpdate: string;
   track: StormTrackPoint[];
   isDemo?: boolean;
+  basin?: string;
 }
 
 export interface HurricaneAlert {
@@ -118,6 +119,7 @@ interface NHCStormRaw {
   longitudeNumeric?: number;
   movement?: string;
   lastUpdate?: string;
+  basin?: string;
 }
 
 interface NHCResponse {
@@ -131,7 +133,7 @@ export async function fetchHurricaneStorms(): Promise<HurricaneStorm[]> {
   });
   if (!res.ok) throw new Error(`Hurricane API error: ${res.status}`);
   const data = await res.json() as NHCResponse;
-  const active = (data?.activeStorms ?? []).filter((s) => (s.id ?? "").toLowerCase().startsWith("al"));
+  const active = data?.activeStorms ?? [];
 
   return active.map((s: NHCStormRaw) => {
     const intensity = Number(s.intensity ?? 0);
@@ -147,6 +149,7 @@ export async function fetchHurricaneStorms(): Promise<HurricaneStorm[]> {
       lng: s.longitudeNumeric ?? 0,
       movement: s.movement ?? "Unknown",
       lastUpdate: s.lastUpdate ?? new Date().toISOString(),
+      basin: s.basin ?? "Atlantic",
       track: [],
     };
   });
