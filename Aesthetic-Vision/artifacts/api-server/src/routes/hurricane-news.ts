@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 
 const router: IRouter = Router();
 
-const NEWS_API_KEY = process.env.NEWS_API_KEY ?? "c33842bd3cd64286ae6a00ff3c0f566e";
+const NEWS_API_KEY = process.env.NEWS_API_KEY ?? "";
 
 const CURATED_HURRICANE_ARTICLES = [
   {

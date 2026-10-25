@@ -6,7 +6,7 @@ Dual-threat coastal monitoring for Southwest Florida — real-time red tide bloo
 
 **EagleHacks 2026**
 
-Live deployment :https://redalage-um5a-git-main-saddasads-projects.vercel.app/
+Live deployment :https://tideguard.darkdill22.workers.dev/
 
 ---
 
@@ -30,7 +30,7 @@ The main view shows a live Leaflet map of Karenia brevis sample locations from t
 
 Above the map, a threat header updates in real time: Critical Threat, Elevated Threat, Low Threat, or All Clear — derived from the peak bloom concentration in the dataset combined with the current wind vector. The wind panel shows direction, speed, and whether the wind is onshore (pushing airborne toxins toward populated beaches) or offshore (dispersing the bloom to sea).
 
-The sidebar — or on mobile, a swipe-up drawer — contains a beach respiratory risk grid for Southwest Florida beaches, a dead fish cleanup priority index, a live news feed, and an AI chat window backed by IBM watsonx. The chat has live context injected: current bloom level, wind conditions, and recent articles are passed as context so the model can answer grounded, specific questions about today's conditions.
+The sidebar — or on mobile, a swipe-up drawer — contains a beach respiratory risk grid for Southwest Florida beaches, a dead fish cleanup priority index, a live news feed, and an AI chat window backed by a free OpenRouter model. The chat has live context injected: current bloom level, wind conditions, and recent articles are passed as context so the model can answer grounded, specific questions about today's conditions.
 
 ### Hurricane Dashboard
 
@@ -38,12 +38,12 @@ The second dashboard tracks active Atlantic storms via NOAA's National Hurricane
 
 Overlay controls on the map let users toggle:
 
-- **Live Radar** — animated Xweather tile overlay with a 2-hour loop and play/stop controls
+- **Live Radar** — animated RainViewer radar overlay with a 2-hour loop and play/stop controls
 - **Flood Zones** — hardcoded FEMA VE and AE zone polygons for SWFL barrier islands and coastal strips (no API call required)
 - **Evacuation Zones** — Zone A, B, and C polygons for Lee, Collier, Charlotte, and Sarasota counties
 - **Shelters** — ten emergency shelter locations with capacity and pet-friendly status
 
-The sidebar for this dashboard includes active NOAA weather alerts, storm details, and the same AI chat pattern — IBM watsonx context-injected with current storm data, alerts, and hurricane news articles.
+The sidebar for this dashboard includes active NOAA weather alerts, storm details, and the same AI chat pattern — OpenRouter free-model chat, context-injected with current storm data, alerts, and hurricane news articles.
 
 When no live storms are active, the dashboard loads Hurricane Milton (October 2024) as a demonstration dataset.
 
@@ -82,8 +82,8 @@ On screens under 768px, both dashboards switch to a full-screen map layout. A fi
 
 | | |
 |---|---|
-| Platform | Vercel (frontend + serverless API functions) |
-| CI | GitHub — auto-deploys on push to main |
+| Platform | Cloudflare Workers (static assets + API routes in `worker/`) |
+| Deploy | `wrangler deploy` (build the frontend first) |
 
 ---
 
@@ -95,10 +95,12 @@ On screens under 768px, both dashboards switch to a full-screen map layout. A fi
 | Weather and wind | Open-Meteo API | None |
 | Hurricane tracks | NOAA National Hurricane Center | None |
 | Weather alerts | NOAA Weather API | None |
-| Animated radar | Xweather / AerisWeather tile API | App ID + Secret |
-| Hurricane news | NewsAPI v2 | API key |
+| Animated radar | RainViewer tiles | None |
+| Base map | Esri World Dark Gray tiles | None |
+| Hurricane news | GDELT DOC API (curated fallback) | None |
+| Road conditions | Open-Meteo | None |
 | Flood zones | Hardcoded FEMA NFHL designations, SWFL | None |
-| AI chat | IBM watsonx + ContentIQ | Deployment URL |
+| AI chat | OpenRouter (`openrouter/free`) | API key (Worker secret) |
 
 ---
 
@@ -107,81 +109,39 @@ On screens under 768px, both dashboards switch to a full-screen map layout. A fi
 ### Prerequisites
 
 - Node.js 20+
-- pnpm 9+ (`npm install -g pnpm`)
+- pnpm 10+ (`npm install -g pnpm`)
 
-### 1. Clone
+### 1. Clone and build
 
 ```bash
-git clone https://github.com/darskkaa/redalage-.git
-cd redalage-/Aesthetic-Vision
+git clone https://github.com/darskkaa/TideGuard.git
+cd TideGuard/Aesthetic-Vision
 pnpm install
+pnpm --filter @workspace/tideguard run build
 ```
 
-### 2. Configure the API server
+The workspace config strips Windows native binaries (it targets Replit/Linux), so on Windows remove the `win32` override lines from `Aesthetic-Vision/pnpm-workspace.yaml` before installing.
 
-Create `artifacts/api-server/.env`:
+### 2. Run the Worker locally
 
-```env
-PORT=3001
-
-# Xweather animated radar (required for the radar layer)
-# Get credentials at xweather.com
-XWEATHER_CLIENT_ID=your_client_id
-XWEATHER_CLIENT_SECRET=your_client_secret
-
-# NewsAPI — required for hurricane news feed
-NEWS_API_KEY=your_newsapi_key
-
-# IBM watsonx — optional, insurance claims AI
-IBM_WATSONX_API_KEY=
-IBM_WATSONX_PROJECT_ID=
-IBM_WATSONX_URL=https://us-south.ml.cloud.ibm.com
-```
-
-### 3. Configure the frontend
-
-Create `artifacts/tideguard/.env.local`:
-
-```env
-VITE_CONTENTIQ_DEPLOYMENT_URL=https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=83e6c4e9-5428-474a-88f2-ca533af9eb4f
-```
-
-### 4. Add the Vite proxy
-
-The frontend uses relative `/api/*` URLs. In development, Vite needs to forward those to the Express server. Open `artifacts/tideguard/vite.config.ts` and add a `proxy` block inside `server`:
-
-```ts
-server: {
-  port,
-  host: "0.0.0.0",
-  proxy: {
-    "/api": "http://localhost:3001",
-  },
-  // ...existing options
-},
-```
-
-### 5. Start the API server
+From the repo root:
 
 ```bash
-cd artifacts/api-server
-pnpm dev
-# Server starts on http://localhost:3001
+npx wrangler dev
 ```
 
-### 6. Start the frontend
+Create `.dev.vars` in the repo root for local chat:
 
-Open a second terminal:
+```env
+OPENROUTER_API_KEY=your_openrouter_key
+```
+
+### 3. Deploy
 
 ```bash
-cd artifacts/tideguard
-pnpm dev
-# Vite starts on http://localhost:3000 (or the next available port)
+npx wrangler secret put OPENROUTER_API_KEY
+npx wrangler deploy
 ```
-
-### 7. Open the app
-
-Navigate to `http://localhost:3000` (or whichever port Vite prints).
 
 The red tide dashboard loads at `/`. The hurricane dashboard is at `/hurricanes`.
 
@@ -189,10 +149,13 @@ The red tide dashboard loads at `/`. The hurricane dashboard is at `/hurricanes`
 
 ## Optional Features
 
-Most of the app works without any API keys. The following features require additional configuration:
+Everything except AI chat works without keys.
 
 | Feature | Required key | Behavior without it |
 |---|---|---|
+| AI chat | `OPENROUTER_API_KEY` (free at openrouter.ai) | Chat replies "Chat is not configured" |
+
+---|---|---|
 | Animated radar overlay | Xweather credentials | Layer toggle shows, tiles return 403 |
 | Hurricane news feed | NewsAPI key | News feed unavailable |
 | Insurance claims AI | IBM watsonx credentials | Rule-based risk estimate used instead |
@@ -227,9 +190,8 @@ Aesthetic-Vision/artifacts/
     └── src/routes/
         ├── hurricane.ts              # NOAA NHC proxy
         ├── news.ts                   # Red tide news endpoint
-        ├── hurricane-news.ts         # NewsAPI hurricane news
-        ├── road-conditions.ts        # Xweather road weather proxy
-        ├── watsonx-claims.ts         # IBM watsonx insurance claims
+        ├── hurricane-news.ts         # GDELT hurricane news
+        ├── road-conditions.ts        # Open-Meteo road weather
         └── flood-zones.ts            # Hardcoded FEMA flood zone data
 ```
 
@@ -241,10 +203,10 @@ Aesthetic-Vision/artifacts/
 |---|---|---|
 | GET | `/api/health` | Health check |
 | GET | `/api/news` | Red tide news articles |
-| GET | `/api/hurricane-news` | Hurricane articles via NewsAPI |
+| GET | `/api/hurricane-news` | Hurricane articles via GDELT |
 | GET | `/api/hurricane/storms` | NOAA NHC active storms |
-| GET | `/api/road-conditions` | Xweather road conditions (6 SWFL roads) |
-| POST | `/api/watsonx-claims` | IBM watsonx insurance claim assessment |
+| GET | `/api/road-conditions` | Open-Meteo road conditions (6 SWFL roads) |
+| POST | `/api/chat` | OpenRouter AI chat with live context |
 
 ---
 

@@ -28,4 +28,3 @@ timeoutMs = 20000
 [userenv]
 
 [userenv.shared]
-NEWS_API_KEY = "c33842bd3cd64286ae6a00ff3c0f566e"

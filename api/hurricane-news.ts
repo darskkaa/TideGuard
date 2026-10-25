@@ -1,7 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const NEWS_API_KEY = process.env.NEWS_API_KEY ?? 'c33842bd3cd64286ae6a00ff3c0f566e';
-
 const CURATED_ARTICLES = [
   { id: 'h-1', title: 'Hurricane Milton makes landfall near Siesta Key as Category 3 storm', description: 'Milton struck Florida\'s Gulf Coast with 120 mph winds, storm surge up to 15 feet, and catastrophic rainfall across central Florida.', url: 'https://www.weather.gov', source: 'NWS', publishedAt: new Date().toISOString() },
   { id: 'h-2', title: 'FEMA opens disaster recovery centers across Southwest Florida', description: 'Federal disaster assistance available for residents in Lee, Collier, Charlotte, and Sarasota counties affected by recent hurricane damage.', url: 'https://www.fema.gov', source: 'FEMA', publishedAt: new Date().toISOString() },
@@ -17,25 +15,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const url = `https://newsapi.org/v2/everything?q=hurricane+OR+tropical+storm+florida&sortBy=relevancy&pageSize=8&language=en&apiKey=${NEWS_API_KEY}`;
+    const query = encodeURIComponent('("tropical storm" OR hurricane OR "National Hurricane Center") sourcelang:english');
+    const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&mode=artlist&maxrecords=8&format=json&sort=datedesc`;
     const upstream = await fetch(url, {
       headers: { 'User-Agent': 'TideGuard/1.0' },
       signal: AbortSignal.timeout(8000),
     });
 
-    if (!upstream.ok) throw new Error(`NewsAPI error: ${upstream.status}`);
+    if (!upstream.ok) throw new Error(`GDELT error: ${upstream.status}`);
 
-    const data = await upstream.json() as { status?: string; articles?: Array<{ title?: string; description?: string; url?: string; source?: { name?: string }; publishedAt?: string }> };
-    if (data.status !== 'ok' || !data.articles?.length) throw new Error('No articles');
+    const data = await upstream.json() as { articles?: Array<{ title?: string; url?: string; domain?: string; seendate?: string }> };
+    if (!data.articles?.length) throw new Error('No articles');
 
-    const articles = data.articles.map((a, i) => ({
-      id: `newsapi-h-${i}`,
-      title: a.title ?? 'Untitled',
-      description: a.description ?? null,
-      url: a.url ?? '',
-      source: a.source?.name ?? 'NewsAPI',
-      publishedAt: a.publishedAt ?? new Date().toISOString(),
-    }));
+    const articles = data.articles.map((a, i) => {
+      const d = a.seendate ?? '';
+      const publishedAt = /^\d{8}T\d{6}Z$/.test(d)
+        ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}T${d.slice(9, 11)}:${d.slice(11, 13)}:${d.slice(13, 15)}Z`
+        : new Date().toISOString();
+      return {
+        id: `gdelt-h-${i}`,
+        title: a.title ?? 'Untitled',
+        description: null,
+        url: a.url ?? '',
+        source: a.domain ?? 'GDELT',
+        publishedAt,
+      };
+    });
 
     res.setHeader('Cache-Control', 'public, max-age=600');
     return res.status(200).json({ articles, source: 'live', totalResults: articles.length });

@@ -1,8 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const CLIENT_ID = process.env.XWEATHER_CLIENT_ID ?? '';
-const CLIENT_SECRET = process.env.XWEATHER_CLIENT_SECRET ?? '';
-
 const ROAD_POINTS = [
   { id: 'us41-fortmyers', name: 'US-41 · Fort Myers', lat: 26.634, lng: -81.874 },
   { id: 'us41-naples', name: 'US-41 · Naples', lat: 26.142, lng: -81.800 },
@@ -12,38 +9,48 @@ const ROAD_POINTS = [
   { id: 'us41-sarasota', name: 'US-41 · Sarasota', lat: 27.221, lng: -82.518 },
 ];
 
-interface XweatherPeriod {
-  roadConditions?: { code?: string; phrase?: string };
-  roadSurface?: { code?: string; phrase?: string; tempF?: number };
-  summary?: { phrase?: string };
+interface OpenMeteoCurrent {
+  temperature_2m?: number;
+  precipitation?: number;
+  snowfall?: number;
+  weather_code?: number;
 }
 
-async function fetchPoint(lat: number, lng: number): Promise<XweatherPeriod | null> {
-  const url = `https://data.api.xweather.com/roadweather/conditions/${lat},${lng}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&limit=1`;
+async function fetchPoint(lat: number, lng: number): Promise<OpenMeteoCurrent | null> {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,precipitation,snowfall,weather_code&temperature_unit=fahrenheit`;
   const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!resp.ok) return null;
-  const data = await resp.json() as { response?: Array<{ periods?: XweatherPeriod[] }> };
-  return data?.response?.[0]?.periods?.[0] ?? null;
+  const data = await resp.json() as { current?: OpenMeteoCurrent };
+  return data.current ?? null;
+}
+
+function classify(c: OpenMeteoCurrent | null): { status: string; phrase: string; surface: string; surfacePhrase: string } {
+  if (!c) return { status: 'unknown', phrase: 'Unknown', surface: 'unknown', surfacePhrase: 'Unknown' };
+  const code = c.weather_code ?? 0;
+  const precip = c.precipitation ?? 0;
+  if ((c.snowfall ?? 0) > 0 || (code >= 71 && code <= 77)) return { status: 'snow', phrase: 'Snow', surface: 'snow', surfacePhrase: 'Snow covered' };
+  if (code >= 95 || precip >= 7.5) return { status: 'severe', phrase: 'Severe weather', surface: 'wet', surfacePhrase: 'Standing water possible' };
+  if (precip > 0 || (code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return { status: 'wet', phrase: 'Wet', surface: 'wet', surfacePhrase: 'Wet' };
+  if (code === 45 || code === 48) return { status: 'fog', phrase: 'Fog', surface: 'dry', surfacePhrase: 'Dry' };
+  return { status: 'dry', phrase: 'Dry', surface: 'dry', surfacePhrase: 'Dry' };
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
-  if (!CLIENT_ID || !CLIENT_SECRET) return res.status(500).json({ error: 'Xweather credentials not configured' });
 
   try {
     type RoadResult = { id: string; name: string; lat: number; lng: number; status: string; statusPhrase: string; surface: string; surfacePhrase: string; tempF: number | null; summary: string | null };
 
     const settled = await Promise.allSettled(
       ROAD_POINTS.map(async (pt): Promise<RoadResult> => {
-        const period = await fetchPoint(pt.lat, pt.lng);
+        const current = await fetchPoint(pt.lat, pt.lng);
+        const k = classify(current);
         return {
           id: pt.id, name: pt.name, lat: pt.lat, lng: pt.lng,
-          status: period?.roadConditions?.code ?? 'unknown',
-          statusPhrase: period?.roadConditions?.phrase ?? 'Unknown',
-          surface: period?.roadSurface?.code ?? 'unknown',
-          surfacePhrase: period?.roadSurface?.phrase ?? 'Unknown',
-          tempF: period?.roadSurface?.tempF ?? null,
-          summary: period?.summary?.phrase ?? null,
+          status: k.status, statusPhrase: k.phrase,
+          surface: k.surface, surfacePhrase: k.surfacePhrase,
+          tempF: current?.temperature_2m ?? null,
+          summary: null,
         };
       })
     );

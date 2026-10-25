@@ -372,9 +372,30 @@ function StaticFloodZoneLayer() {
   );
 }
 
-// ── Xweather / Aeris Radar Tile Layer ──
-const AERIS_CREDS = "cPGg0QrhyIYBgkuNI4t1E_Xnq1iKNj3Vhry4JIHtJetnwlAkbgzjZj3GHPcxEe";
+// ── RainViewer Radar Tile Layer (keyless) ──
 const RADAR_FRAMES = ["-120min", "-90min", "-60min", "-30min", "current"] as const;
+const RADAR_STEPS_BACK = [12, 9, 6, 3, 0];
+
+function useRainViewerFrames(enabled: boolean) {
+  const [urls, setUrls] = useState<string[]>([]);
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    fetch("https://api.rainviewer.com/public/weather-maps.json")
+      .then((r) => r.json())
+      .then((d: { host: string; radar: { past: { path: string }[] } }) => {
+        if (cancelled) return;
+        const past = d.radar.past;
+        setUrls(RADAR_STEPS_BACK.map((back) => {
+          const frame = past[Math.max(0, past.length - 1 - back)];
+          return `${d.host}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`;
+        }));
+      })
+      .catch(() => { if (!cancelled) setUrls([]); });
+    return () => { cancelled = true; };
+  }, [enabled]);
+  return urls;
+}
 const FRAME_LABELS = ["-2h", "-90m", "-60m", "-30m", "LIVE"] as const;
 
 
@@ -521,6 +542,7 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
   const [showShelters, setShowShelters] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [frameIndex, setFrameIndex] = useState(RADAR_FRAMES.length - 1);
+  const radarUrls = useRainViewerFrames(showRadar);
   const playTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -548,16 +570,21 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
         zoomControl={false}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          subdomains="abcd"
-          maxZoom={19}
+          url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+          attribution='Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+          maxZoom={16}
+        />
+        <TileLayer
+          url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+          maxZoom={16}
+          zIndex={150}
         />
 
-        {showRadar && RADAR_FRAMES.map((f, i) => (
+        {showRadar && radarUrls.map((url, i) => (
           <TileLayer
-            key={f}
-            url={`https://maps1.aerisapi.com/${AERIS_CREDS}/radar/{z}/{x}/{y}/${f}.png`}
+            key={url}
+            url={url}
+            maxNativeZoom={7}
             opacity={i === frameIndex ? 0.72 : 0}
             zIndex={i === frameIndex ? 201 : 200}
           />

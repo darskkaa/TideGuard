@@ -1,9 +1,9 @@
+import AIChatPanel from "./AIChatPanel";
 import { useState, useRef } from "react";
 import { Wind, Newspaper, MessageSquare, X, ChevronRight, ClipboardCopy, Check, ChevronDown } from "lucide-react";
 import type { NewsArticle } from "@/lib/news-api";
 import type { WindData } from "@/lib/wind-api";
 import type { AbundanceLevel } from "@/lib/fwc-api";
-const RED_ALGAE_CHAT_URL = "https://partners.contentiq.symplistic.ai/external/deploy/chat/index.html?chat_id=83e6c4e9-5428-474a-88f2-ca533af9eb4f";
 
 function timeAgo(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -331,19 +331,8 @@ export function RedTideChatOverlay({
   dataTimestamp: string;
 }) {
   const [copied, setCopied] = useState(false);
-  const [sentQ, setSentQ] = useState<string | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const sendQuestion = (q: string) => {
-    iframeRef.current?.contentWindow?.postMessage({ type: "user-message", text: q }, "*");
-    iframeRef.current?.contentWindow?.postMessage({ type: "sendMessage", message: q }, "*");
-    iframeRef.current?.contentWindow?.postMessage({ content: q, role: "user" }, "*");
-    navigator.clipboard.writeText(q).catch(() => {});
-    setSentQ(q);
-    setTimeout(() => setSentQ(null), 2500);
-  };
-
-  const copyContext = () => {
+  const buildContext = () => {
     const lines: string[] = [
       `=== TideGuard Red Tide Context (${dataTimestamp}) ===`,
       "",
@@ -357,7 +346,11 @@ export function RedTideChatOverlay({
       articles.slice(0, 4).forEach((a) => lines.push(`• [${a.source}] ${a.title}`));
     }
     lines.push("", "Use this context to answer my question about current red tide conditions.");
-    navigator.clipboard.writeText(lines.join("\n")).then(() => {
+    return lines.join("\n");
+  };
+
+  const copyContext = () => {
+    navigator.clipboard.writeText(buildContext()).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -400,41 +393,12 @@ export function RedTideChatOverlay({
           </button>
         </div>
       </div>
-      <div className="flex-shrink-0 px-4 py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-        <div
-          className="flex gap-1.5 overflow-x-auto pb-0.5"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {buildQuestions(fwcLevel, wind).map((item) => (
-            <button
-              key={item.q}
-              onClick={() => sendQuestion(item.q)}
-              className="flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-medium transition-all duration-150 hover:bg-white/10 active:scale-95"
-              style={{
-                background: "rgba(0,196,228,0.07)",
-                border: "1px solid rgba(0,196,228,0.18)",
-                color: "hsl(191 80% 60%)",
-              }}
-            >
-              {item.q}
-            </button>
-          ))}
-        </div>
-      </div>
-      {sentQ && (
-        <div className="flex-shrink-0 flex items-center justify-center py-1.5">
-          <span className="text-[10px] font-medium px-3 py-1 rounded-full"
-            style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" }}>
-            Copied — paste into chat ↓
-          </span>
-        </div>
-      )}
       <div className="flex-1 min-h-0 overflow-hidden" style={{ padding: 16 }}>
-        <iframe
-          ref={iframeRef}
-          src={RED_ALGAE_CHAT_URL}
-          style={{ width: "100%", height: "100%", border: "none", borderRadius: 12, display: "block" }}
-          allow="microphone"
+        <AIChatPanel
+          mode="redtide"
+          accent="hsl(191 90% 46%)"
+          buildContext={buildContext}
+          questions={buildQuestions(fwcLevel, wind).map((item) => item.q)}
         />
       </div>
     </div>
