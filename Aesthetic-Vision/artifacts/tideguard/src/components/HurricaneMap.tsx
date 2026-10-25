@@ -399,20 +399,6 @@ function useRainViewerFrames(enabled: boolean) {
 const FRAME_LABELS = ["-2h", "-90m", "-60m", "-30m", "LIVE"] as const;
 
 
-function MapFlyTo({ storms }: { storms: HurricaneStorm[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (storms.length === 0) return;
-    const atlantic = storms.filter((s) => (s.basin ?? "Atlantic") === "Atlantic");
-    if (atlantic.length > 0) {
-      map.setView([atlantic[0].lat, atlantic[0].lng], 6, { animate: true });
-    } else {
-      map.fitBounds(storms.map((s) => [s.lat, s.lng] as [number, number]), { paddingTopLeft: [160, 70], paddingBottomRight: [window.innerWidth >= 768 ? 400 : 40, 70], maxZoom: 5, animate: true });
-    }
-  }, [storms, map]);
-  return null;
-}
-
 function StormMarkers({ storms }: { storms: HurricaneStorm[] }) {
   return (
     <>
@@ -598,7 +584,6 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
         {showShelters && <ShelterMarkers />}
 
         <StormMarkers storms={storms} />
-        <MapFlyTo storms={storms} />
         <MapCenterTracker onCenterChange={onCenterChange} />
         <MapResizer isMobile={isMobile} />
       </MapContainer>
