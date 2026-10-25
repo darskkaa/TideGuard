@@ -11,8 +11,35 @@ const CURATED_ARTICLES = [
   { id: 'h-8', title: 'Citizens Property Insurance warns of coverage gaps for hurricane damage', description: 'Florida\'s insurer of last resort reminds policyholders that standard policies exclude flood damage. Separate NFIP flood coverage is essential.', url: 'https://www.citizensfla.com', source: 'Citizens Insurance', publishedAt: new Date().toISOString() },
 ];
 
+type Article = { id: string; title: string; description: string | null; url: string; source: string; publishedAt: string };
+
+async function fetchNewsApi(key: string): Promise<Article[]> {
+  const url = `https://newsapi.org/v2/everything?qInTitle=${encodeURIComponent('(hurricane OR "tropical storm" OR "storm surge") AND (Florida OR Gulf)')}&sortBy=publishedAt&pageSize=8&language=en&apiKey=${key}`;
+  const upstream = await fetch(url, { headers: { 'User-Agent': 'TideGuard/1.0' }, signal: AbortSignal.timeout(8000) });
+  if (!upstream.ok) throw new Error(`NewsAPI error: ${upstream.status}`);
+  const data = await upstream.json() as { status?: string; articles?: Array<{ title?: string; description?: string; url?: string; source?: { name?: string }; publishedAt?: string }> };
+  if (data.status !== 'ok' || !data.articles?.length) throw new Error('No articles');
+  return data.articles.map((a, i) => ({
+    id: `newsapi-h-${i}`,
+    title: a.title ?? 'Untitled',
+    description: a.description ?? null,
+    url: a.url ?? '',
+    source: a.source?.name ?? 'NewsAPI',
+    publishedAt: a.publishedAt ?? new Date().toISOString(),
+  }));
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  const newsApiKey = process.env.NEWS_API_KEY;
+  if (newsApiKey) {
+    try {
+      const articles = await fetchNewsApi(newsApiKey);
+      res.setHeader('Cache-Control', 'public, max-age=600');
+      return res.status(200).json({ articles, source: 'live', totalResults: articles.length });
+    } catch { /* fall through to GDELT */ }
+  }
 
   try {
     const query = encodeURIComponent('("tropical storm" OR hurricane OR "National Hurricane Center") sourcelang:english');
