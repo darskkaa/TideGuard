@@ -4,6 +4,7 @@
   "main": "worker/index.ts",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "assets": {
     "directory": "Aesthetic-Vision/artifacts/tideguard/dist/public",
     "binding": "ASSETS",
