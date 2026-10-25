@@ -32,7 +32,7 @@ function WindRow({ wind }: { wind: WindData | null }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-foreground">
-              {wind.directionLabel} · {wind.speed} km/h
+              {wind.directionLabel} · {wind.speed} mph
             </span>
             <span
               className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
@@ -81,8 +81,8 @@ function buildQuestions(fwcLevel: AbundanceLevel, wind: WindData | null) {
     {
       q: "Will red tide come toward shore?",
       a: isOnshore
-        ? `Wind is currently blowing ${wind?.directionLabel ?? "onshore"} at ${speed} km/h — this is pushing the bloom toward the coastline. Expect elevated toxin levels and respiratory irritation near shore. Conditions could worsen over the next 12–24 hours.`
-        : `Wind is blowing offshore at ${speed} km/h, dispersing the bloom away from the coast. Coastal impact is reduced right now, but conditions can shift quickly — monitor wind forecasts if you're planning a beach visit.`,
+        ? `Wind is currently blowing ${wind?.directionLabel ?? "onshore"} at ${speed} mph — this is pushing the bloom toward the coastline. Expect elevated toxin levels and respiratory irritation near shore. Conditions could worsen over the next 12–24 hours.`
+        : `Wind is blowing offshore at ${speed} mph, dispersing the bloom away from the coast. Coastal impact is reduced right now, but conditions can shift quickly — monitor wind forecasts if you're planning a beach visit.`,
     },
     {
       q: "Is it safe to swim today?",
@@ -339,7 +339,7 @@ export function RedTideChatOverlay({
       `FWC Bloom Level: ${fwcLevel}`,
     ];
     if (wind) {
-      lines.push(`Wind: ${wind.directionLabel} at ${wind.speed} km/h — ${wind.isOnshore ? "ONSHORE (toxins drifting toward coast)" : "OFFSHORE (bloom dispersing away from shore)"}`);
+      lines.push(`Wind: ${wind.directionLabel} at ${wind.speed} mph — ${wind.isOnshore ? "ONSHORE (toxins drifting toward coast)" : "OFFSHORE (bloom dispersing away from shore)"}`);
     }
     if (articles.length > 0) {
       lines.push("", "Recent Red Tide News:");

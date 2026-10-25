@@ -275,7 +275,7 @@ export function HurricaneIntelContent({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-foreground">
-                    {wind.directionLabel} · {wind.speed} km/h
+                    {wind.directionLabel} · {wind.speed} mph
                   </span>
                   <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
                     style={{
@@ -427,7 +427,7 @@ export function HurricaneChatOverlay({
     }
     lines.push(``, `Threat Level: ${threat.text}`);
     if (wind) {
-      lines.push(`Wind: ${wind.directionLabel} at ${wind.speed} km/h — ${wind.isOnshore ? "ONSHORE (surge risk elevated)" : "OFFSHORE (reduced coastal impact)"}`);
+      lines.push(`Wind: ${wind.directionLabel} at ${wind.speed} mph — ${wind.isOnshore ? "ONSHORE (surge risk elevated)" : "OFFSHORE (reduced coastal impact)"}`);
     }
     if (alerts.length > 0) {
       lines.push("", "Active Warnings:");

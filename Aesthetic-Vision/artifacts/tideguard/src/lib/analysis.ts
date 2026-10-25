@@ -43,7 +43,7 @@ export function buildAnalysis(
     MINIMAL: "MINIMAL RISK: No action required. Bloom activity is not present in monitored zones. Continue routine monitoring.",
   };
 
-  const briefText = `TideGuard Alert for ${location}. Risk level: ${riskLevel}. ${recommendations[riskLevel]}. Wind is ${wind ? `${wind.directionLabel} at ${wind.speed} km/h — ${wind.isOnshore ? "onshore, carrying toxins toward coast" : "offshore, dispersing blooms seaward"}` : "conditions unavailable"}. Karenia brevis concentration: ${fwcLevel.replace("_", " ")}. Confidence: ${getConfidence(riskLevel)}%.`;
+  const briefText = `TideGuard Alert for ${location}. Risk level: ${riskLevel}. ${recommendations[riskLevel]}. Wind is ${wind ? `${wind.directionLabel} at ${wind.speed} mph — ${wind.isOnshore ? "onshore, carrying toxins toward coast" : "offshore, dispersing blooms seaward"}` : "conditions unavailable"}. Karenia brevis concentration: ${fwcLevel.replace("_", " ")}. Confidence: ${getConfidence(riskLevel)}%.`;
 
   return {
     riskLevel,

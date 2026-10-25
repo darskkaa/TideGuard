@@ -17,7 +17,7 @@ export function isOnshoreWind(directionDegrees: number): boolean {
 }
 
 export async function fetchWindData(lat: number, lng: number): Promise<WindData> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&windspeed_unit=mph`;
   const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!res.ok) throw new Error(`Wind API error: ${res.status}`);
   const json = await res.json() as {
@@ -27,7 +27,7 @@ export async function fetchWindData(lat: number, lng: number): Promise<WindData>
   return {
     speed: windspeed,
     direction: winddirection,
-    unit: "km/h",
+    unit: "mph",
     isOnshore: isOnshoreWind(winddirection),
     directionLabel: getWindDirectionLabel(winddirection),
     timestamp: time,

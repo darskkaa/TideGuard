@@ -46,7 +46,7 @@ export async function fetchWeatherData(lat: number, lng: number): Promise<Weathe
     `https://api.open-meteo.com/v1/forecast?` +
     `latitude=${lat}&longitude=${lng}&` +
     `current=temperature_2m,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m&` +
-    `temperature_unit=fahrenheit`;
+    `temperature_unit=fahrenheit&wind_speed_unit=mph`;
 
   const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!res.ok) throw new Error(`Weather API error: ${res.status}`);

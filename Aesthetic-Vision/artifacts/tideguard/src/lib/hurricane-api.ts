@@ -196,9 +196,9 @@ export async function fetchHurricaneData(): Promise<HurricaneData> {
   const liveStorms = stormsResult.status === "fulfilled" ? stormsResult.value : [];
   const alerts = alertsResult.status === "fulfilled" ? alertsResult.value : [];
 
-  // Off-season: use demo data so the dashboard is always useful
-  const storms = liveStorms.length > 0 ? liveStorms : DEMO_STORMS;
-  const source = liveStorms.length > 0 ? "live" : "demo";
+  const stormsFailed = stormsResult.status === "rejected";
+  const storms = stormsFailed ? DEMO_STORMS : liveStorms;
+  const source = stormsFailed ? "demo" : "live";
 
   return {
     storms,

@@ -95,7 +95,7 @@ function WindCompass({ wind }: { wind: WindData | null }) {
             {wind.directionLabel}
           </div>
           <div className="text-mono text-[11px] text-muted-foreground mt-0.5">
-            {wind.speed} <span className="text-[9px]">km/h</span>
+            {wind.speed} <span className="text-[9px]">mph</span>
           </div>
           {wind.isOnshore && (
             <div className="mt-1 text-[9px] font-medium text-destructive uppercase tracking-widest">
