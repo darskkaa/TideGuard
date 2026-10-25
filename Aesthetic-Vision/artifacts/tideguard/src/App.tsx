@@ -1,12 +1,14 @@
 import PrivacyNotice from "@/components/PrivacyNotice";
-import Legal from "@/pages/Legal";
 import "leaflet/dist/leaflet.css";
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Switch, Route, Link, useLocation } from "wouter";
 import { Droplets, CloudLightning } from "lucide-react";
 import Dashboard from "@/pages/Dashboard";
-import HurricaneDashboard from "@/pages/HurricaneDashboard";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+const HurricaneDashboard = lazy(() => import("@/pages/HurricaneDashboard"));
+const Legal = lazy(() => import("@/pages/Legal"));
 
 const queryClient = new QueryClient();
 
@@ -116,6 +118,7 @@ function NavToggle() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <Suspense fallback={null}>
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/hurricanes" component={HurricaneDashboard} />
@@ -123,6 +126,7 @@ export default function App() {
         <Route path="/privacy" component={Legal} />
         <Route path="/terms" component={Legal} />
       </Switch>
+      </Suspense>
       {!["/legal", "/privacy", "/terms"].includes(window.location.pathname) && <NavToggle />}
       <PrivacyNotice />
     </QueryClientProvider>

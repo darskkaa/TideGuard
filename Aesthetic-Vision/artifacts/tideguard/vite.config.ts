@@ -40,6 +40,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          leaflet: ["leaflet", "react-leaflet"],
+          motion: ["framer-motion"],
+        },
+      },
+    },
   },
   server: {
     port,
