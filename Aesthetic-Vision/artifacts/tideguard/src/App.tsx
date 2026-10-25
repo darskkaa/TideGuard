@@ -1,3 +1,4 @@
+import Legal from "@/pages/Legal";
 import "leaflet/dist/leaflet.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Switch, Route, Link, useLocation } from "wouter";
@@ -112,8 +113,11 @@ export default function App() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/hurricanes" component={HurricaneDashboard} />
+        <Route path="/legal" component={Legal} />
+        <Route path="/privacy" component={Legal} />
+        <Route path="/terms" component={Legal} />
       </Switch>
-      <NavToggle />
+      {!["/legal", "/privacy", "/terms"].includes(window.location.pathname) && <NavToggle />}
     </QueryClientProvider>
   );
 }

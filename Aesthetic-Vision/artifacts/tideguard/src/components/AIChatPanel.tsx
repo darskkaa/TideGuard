@@ -239,7 +239,7 @@ export default function AIChatPanel({
       </div>
 
       <div className="flex items-center justify-between flex-shrink-0 px-1">
-        <span className="text-[10px]" style={{ color: "hsl(210 18% 52%)" }}>AI can make mistakes. Verify with official sources.</span>
+        <span className="text-[10px]" style={{ color: "hsl(210 18% 52%)" }}>AI can make mistakes; not official advice. Don't share personal info. <a href="/legal#privacy" className="underline">Privacy</a></span>
         {messages.length > 0 && (
           <button onClick={clear} className="flex items-center gap-1 text-[11px] px-2 py-1 rounded hover:bg-white/10 cursor-pointer" style={{ color: "hsl(210 18% 62%)" }}>
             <Trash2 size={11} /> New chat

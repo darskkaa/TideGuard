@@ -574,6 +574,7 @@ export default function HurricaneMap({ storms, wind: _wind, loading, onCenterCha
           <TileLayer
             key={url}
             url={url}
+            attribution='Radar &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'
             maxNativeZoom={7}
             opacity={i === frameIndex ? 0.72 : 0}
             zIndex={i === frameIndex ? 201 : 200}

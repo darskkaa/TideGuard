@@ -311,7 +311,7 @@ export function AnalysisIntelContent({
         style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
       >
         <div className="text-[10px] text-muted-foreground font-mono">
-          FWC · Open-Meteo · NewsAPI
+          FWC · Open-Meteo · NewsAPI · <a href="/legal" className="underline">Privacy &amp; Terms</a>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
