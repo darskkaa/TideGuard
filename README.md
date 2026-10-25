@@ -97,7 +97,7 @@ On screens under 768px, both dashboards switch to a full-screen map layout. A fi
 | Weather alerts | NOAA Weather API | None |
 | Animated radar | RainViewer tiles | None |
 | Base map | Esri World Dark Gray tiles | None |
-| Hurricane news | NewsAPI, then GDELT, then curated fallback | `NEWS_API_KEY` (optional Worker secret) |
+| Hurricane news | GDELT, then curated fallback (NewsAPI only if `NEWS_API_KEY` is set; its free plan forbids production use) | None |
 | Road conditions | Open-Meteo | None |
 | Flood zones | Hardcoded FEMA NFHL designations, SWFL | None |
 | AI chat | OpenRouter (`openrouter/free`) | API key (Worker secret) |
@@ -154,7 +154,6 @@ Everything except AI chat works without keys.
 | Feature | Required key | Behavior without it |
 |---|---|---|
 | AI chat | `OPENROUTER_API_KEY` (free at openrouter.ai) | Chat replies "Chat is not configured" |
-| Live hurricane news | `NEWS_API_KEY` (free at newsapi.org) | Falls back to GDELT, then curated articles |
 
 ---|---|---|
 | Animated radar overlay | Xweather credentials | Layer toggle shows, tiles return 403 |

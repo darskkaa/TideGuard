@@ -189,7 +189,7 @@ function OverlayControls({
             className="w-3 h-3 rounded-sm flex items-center justify-center"
             style={{
               background: active ? color : "transparent",
-              border: active ? "none" : `1.5px solid hsl(210 18% 40%)`,
+              border: active ? "none" : `1.5px solid hsl(210 18% 60%)`,
             }}
           >
             {active && (

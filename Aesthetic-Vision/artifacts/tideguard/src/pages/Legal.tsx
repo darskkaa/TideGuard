@@ -10,7 +10,7 @@ const SOURCES: { name: string; use: string; url: string }[] = [
   { name: "Open-Meteo (CC BY 4.0)", use: "Weather, wind and road conditions", url: "https://open-meteo.com/" },
   { name: "RainViewer", use: "Weather radar tiles", url: "https://www.rainviewer.com/" },
   { name: "Esri", use: "Base map tiles", url: "https://www.esri.com/" },
-  { name: "NewsAPI and GDELT", use: "News headlines (linked to the original publishers)", url: "https://newsapi.org/" },
+  { name: "GDELT Project", use: "News headlines (linked to the original publishers)", url: "https://www.gdeltproject.org/" },
   { name: "OpenRouter and Cloudflare Workers AI", use: "AI chat responses", url: "https://openrouter.ai/" },
 ];
 
@@ -47,18 +47,24 @@ export default function Legal() {
         </Section>
 
         <Section id="privacy" title="Privacy">
-          <p><strong>We do not use cookies, advertising, analytics or tracking pixels, and we do not ask for an account, your location or notification permission.</strong> Because of that there is no cookie banner.</p>
-          <p><strong>What stays in your browser.</strong> Your chat history is kept in session storage in your own browser so a refresh does not wipe it. It is deleted when you close the tab or press "New chat". It is never used to identify you.</p>
+          <p><strong>We do not use cookies, advertising, analytics or tracking pixels, and we do not ask for an account, your location or notification permission.</strong> We do not sell or share personal information, so there is nothing to opt out of (this includes Global Privacy Control signals). Because nothing needs consent, there is no cookie banner.</p>
+          <p><strong>What stays in your browser.</strong> Your chat history is kept in session storage in your own browser so a refresh does not wipe it. It is deleted when you close the tab or press "New chat". If you dismiss the privacy notice, a single flag (<code>tg-notice</code>) is kept in local storage so the notice does not return. Neither is used to identify you or sent to us.</p>
           <p><strong>What our server receives.</strong> This site runs on Cloudflare. Cloudflare processes requests, including your IP address, to deliver the site and protect it from abuse, and may keep short-lived technical logs. We do not build profiles or sell data.</p>
-          <p><strong>AI chat.</strong> When you send a message, the text of your question, your recent messages in that chat and the dashboard data currently on screen are sent to an AI provider (OpenRouter and the free models it routes to, or Cloudflare Workers AI) to generate a reply. Free models may log prompts and may use them to improve their service under their own policies. <strong>Do not type personal, medical or other sensitive information into the chat.</strong></p>
+          <p><strong>AI chat.</strong> The chat is an AI system, not a person, and answers are generated automatically. When you send a message, the text of your question, your recent messages in that chat and the dashboard data currently on screen are sent to an AI provider (OpenRouter and the free models it routes to, or Cloudflare Workers AI) to generate a reply. Free models may log prompts and may use them to improve their service under their own policies. <strong>Do not type personal, medical or other sensitive information into the chat.</strong></p>
           <p><strong>Third-party requests from your browser.</strong> To draw the map and data, your browser contacts these services directly, and each can see your IP address and browser details: Esri (map tiles), RainViewer (radar), Open-Meteo (weather), the Florida Fish and Wildlife Conservation Commission (bloom data), the National Weather Service (alerts) and, if you click an article, the publisher of that article. Fonts are served from this site, not from Google.</p>
           <p><strong>Your rights.</strong> Because we do not keep personal profiles, there is usually nothing to access or delete. If you are in a place with privacy laws such as the GDPR or CCPA and want to ask, contact the site owner through the project's GitHub page. We do not knowingly collect information from children.</p>
         </Section>
 
         <Section id="terms" title="Terms of use">
           <p>The site is provided "as is" and "as available", without warranties of any kind, express or implied, including accuracy, availability and fitness for a particular purpose. To the fullest extent the law allows, the operators are not liable for any loss or damage arising from use of, or reliance on, the site or its AI replies.</p>
-          <p>Do not scrape the API at high volume, attempt to disrupt the service, or use it to build a competing product without permission. We may change or remove the site at any time. This is a student and hackathon project and is not affiliated with NOAA, FWC, FEMA or any government agency.</p>
+          <p>Do not scrape the API at high volume, attempt to disrupt the service, or use it to build a competing product without permission. We may change or remove the site at any time. This is a non-commercial student and hackathon project and is not affiliated with NOAA, FWC, FEMA or any government agency.</p>
+          <p>It relies on free data services whose terms limit use to personal, educational or non-commercial purposes (for example RainViewer radar and the free Open-Meteo tier). Commercial use of this site would require paid plans with those providers.</p>
           <p>Names, logos and data belong to their owners and are used for identification and attribution.</p>
+        </Section>
+
+        <Section id="accessibility" title="Accessibility">
+          <p>We aim to meet WCAG 2.2 level AA. The site supports keyboard navigation, visible focus indicators, screen-reader labels, text resizing and zoom, and respects your reduced-motion setting. The AI chat window can be closed with the Escape key.</p>
+          <p>Known limits: the interactive map and radar are visual and cannot be fully operated from a keyboard, so the same information is also listed as text in the side panel (storms, wind, alerts, beach conditions). If you hit a barrier, tell us through the project's GitHub page and we will try to fix it or give you the information another way.</p>
         </Section>
 
         <Section id="sources" title="Data sources and attribution">

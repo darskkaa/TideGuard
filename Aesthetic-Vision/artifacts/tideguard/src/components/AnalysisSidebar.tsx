@@ -149,7 +149,7 @@ function CommonQuestions({ fwcLevel, wind }: { fwcLevel: AbundanceLevel; wind: W
                 size={12}
                 className="flex-shrink-0 transition-transform duration-150"
                 style={{
-                  color: "hsl(210 18% 45%)",
+                  color: "hsl(210 18% 60%)",
                   transform: openIndex === i ? "rotate(180deg)" : "rotate(0deg)",
                 }}
               />
@@ -298,7 +298,7 @@ export function AnalysisIntelContent({
                       {article.title}
                     </div>
                   </div>
-                  <ChevronRight size={12} className="flex-shrink-0 mt-1" style={{ color: "hsl(210 18% 40%)" }} />
+                  <ChevronRight size={12} className="flex-shrink-0 mt-1" style={{ color: "hsl(210 18% 60%)" }} />
                 </div>
               </a>
             ))}
@@ -311,7 +311,7 @@ export function AnalysisIntelContent({
         style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
       >
         <div className="text-[10px] text-muted-foreground font-mono">
-          FWC · Open-Meteo · NewsAPI · <a href="/legal" className="underline">Privacy &amp; Terms</a>
+          FWC · Open-Meteo · GDELT · <a href="/legal" className="underline">Privacy &amp; Terms</a>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
@@ -413,7 +413,7 @@ export default function AnalysisSidebar({
   const handleCloseChat = () => setActiveTab("intel");
 
   return (
-    <div className="absolute right-0 top-0 h-full z-[1000]" style={{ width: 420 }}>
+    <div className="absolute right-0 top-0 h-full z-[1000]" style={{ width: 420 }} role="complementary" aria-label="Red tide intel feed">
       <div
         className="h-full flex flex-col overflow-hidden"
         style={{

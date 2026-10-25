@@ -176,6 +176,7 @@ export default function AIChatPanel({
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col" style={{ gap: 12 }} role="log" aria-live="polite" aria-label="Chat conversation">
         {messages.length === 0 ? (
           <div className="m-auto w-full max-w-xl text-center" style={{ padding: "8px 0" }}>
+            <p className="text-[11px] font-semibold mb-3 inline-block px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.07)", color: "hsl(210 20% 88%)" }}>You are chatting with an AI assistant, not a person</p>
             <p className="text-sm font-semibold mb-1" style={{ color: "hsl(210 20% 92%)" }}>Ask about conditions right now</p>
             <p className="text-xs mb-4" style={{ color: "hsl(210 18% 62%)" }}>Answers use the live data on screen plus a curated knowledge base.</p>
             <div className="flex flex-wrap justify-center gap-2">

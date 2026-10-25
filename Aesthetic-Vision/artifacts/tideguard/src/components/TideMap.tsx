@@ -208,7 +208,7 @@ function FWCMarkers({ features }: { features: FWCFeature[] }) {
                     Count: {Number(f.properties.Count_).toLocaleString()} cells/L
                   </div>
                 )}
-                <div style={{ marginTop: 8, fontSize: 10, color: "hsl(210 18% 40%)", fontFamily: "'JetBrains Mono', monospace" }}>
+                <div style={{ marginTop: 8, fontSize: 10, color: "hsl(210 18% 60%)", fontFamily: "'JetBrains Mono', monospace" }}>
                   {lat.toFixed(4)}° N, {Math.abs(lng).toFixed(4)}° W
                 </div>
               </div>

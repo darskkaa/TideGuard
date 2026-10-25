@@ -33,7 +33,7 @@ export default function MobileBottomNav({ activeTab, onTabChange, accentColor }:
             className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors duration-150"
             style={{
               background: isActive ? accentColor + "12" : "transparent",
-              color: isActive ? accentColor : "hsl(210 18% 45%)",
+              color: isActive ? accentColor : "hsl(210 18% 60%)",
               minHeight: 56,
             }}
           >

@@ -224,7 +224,7 @@ function HurricaneCommonQuestions({ storms, alerts, wind }: { storms: HurricaneS
                 size={12}
                 className="flex-shrink-0 transition-transform duration-150"
                 style={{
-                  color: "hsl(210 18% 45%)",
+                  color: "hsl(210 18% 60%)",
                   transform: openIndex === i ? "rotate(180deg)" : "rotate(0deg)",
                 }}
               />
@@ -380,7 +380,7 @@ export function HurricaneIntelContent({
                         {article.title}
                       </div>
                     </div>
-                    <ChevronRight size={12} className="flex-shrink-0 mt-1" style={{ color: "hsl(210 18% 40%)" }} />
+                    <ChevronRight size={12} className="flex-shrink-0 mt-1" style={{ color: "hsl(210 18% 60%)" }} />
                   </div>
                 </a>
               ))}
@@ -392,7 +392,7 @@ export function HurricaneIntelContent({
       {/* Footer */}
       <div className="flex-shrink-0 px-4 py-2.5 flex items-center justify-between"
         style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-        <div className="text-[10px] text-muted-foreground font-mono">NHC · NOAA · NewsAPI · <a href="/legal" className="underline">Privacy &amp; Terms</a></div>
+        <div className="text-[10px] text-muted-foreground font-mono">NHC · NOAA · GDELT · <a href="/legal" className="underline">Privacy &amp; Terms</a></div>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
           <span className="text-[10px] text-muted-foreground">{dataTimestamp}</span>
@@ -530,7 +530,7 @@ export default function HurricaneSidebar({
 
   return (
     <>
-      <div className="absolute right-0 top-0 h-full z-[1000]" style={{ width: 420 }}>
+      <div className="absolute right-0 top-0 h-full z-[1000]" style={{ width: 420 }} role="complementary" aria-label="Hurricane intel feed">
         <div className="h-full flex flex-col overflow-hidden"
           style={{
             background: "rgba(7, 12, 22, 0.92)",

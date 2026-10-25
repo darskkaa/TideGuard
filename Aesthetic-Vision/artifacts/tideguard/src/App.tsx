@@ -1,3 +1,4 @@
+import PrivacyNotice from "@/components/PrivacyNotice";
 import Legal from "@/pages/Legal";
 import "leaflet/dist/leaflet.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -118,6 +119,7 @@ export default function App() {
         <Route path="/terms" component={Legal} />
       </Switch>
       {!["/legal", "/privacy", "/terms"].includes(window.location.pathname) && <NavToggle />}
+      <PrivacyNotice />
     </QueryClientProvider>
   );
 }

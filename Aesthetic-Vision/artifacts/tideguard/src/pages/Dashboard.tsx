@@ -133,6 +133,7 @@ function TopBar({
             <button
               onClick={onRefresh}
               disabled={refreshing}
+              aria-label="Refresh data"
               className="w-11 h-11 md:w-8 md:h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{
                 background: "rgba(255,255,255,0.04)",
@@ -230,7 +231,8 @@ export default function Dashboard() {
   const dataTimestamp = lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
   return (
-    <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
+    <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }} role="main">
+      <h1 className="sr-only">TideGuard red tide dashboard</h1>
       {/* Map fills available space */}
       <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }}>
         <TideMap features={features} wind={wind} loading={fwcLoading} onCenterChange={handleMapCenter} />

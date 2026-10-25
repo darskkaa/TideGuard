@@ -56,7 +56,7 @@ export default function ChatModal({
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
             <span className="text-sm font-bold tracking-wide" style={{ color: accent }}>{title}</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold" style={{ background: "rgba(255,255,255,0.06)", color: "hsl(210 18% 62%)" }}>FREE AI</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold" style={{ background: "rgba(255,255,255,0.06)", color: "hsl(210 18% 62%)" }}>AI ASSISTANT</span>
           </div>
           <div className="flex items-center gap-2">
             {actions}
