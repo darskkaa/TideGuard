@@ -55,7 +55,7 @@ ${(payload.context ?? '').slice(0, 4000)}`;
   const upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', 'X-Title': 'TideGuard' },
-    body: JSON.stringify({ model: 'openrouter/free', max_tokens: 600, messages: [{ role: 'system', content: system }, ...history] }),
+    body: JSON.stringify({ models: ['nvidia/nemotron-3.5-lightning:free', 'poolside/laguna-xs-2.1:free', 'openrouter/free'], reasoning: { enabled: false }, max_tokens: 450, messages: [{ role: 'system', content: system }, ...history] }),
     signal: AbortSignal.timeout(25000),
   }).catch(() => null);
   if (!upstream?.ok) return json({ error: 'AI service unavailable, try again shortly' }, 502);
