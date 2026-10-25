@@ -15,6 +15,8 @@ const tabs = [
 export default function MobileBottomNav({ activeTab, onTabChange, accentColor }: MobileBottomNavProps) {
   return (
     <div
+      role="navigation"
+      aria-label="Sections"
       className="fixed bottom-0 left-0 right-0 z-[9998] flex items-stretch"
       style={{
         height: 56,

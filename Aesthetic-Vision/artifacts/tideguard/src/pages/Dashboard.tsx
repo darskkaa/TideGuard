@@ -151,6 +151,7 @@ function TopBar({
 }
 
 export default function Dashboard() {
+  useEffect(() => { document.title = "TideGuard | Red Tide Map and Alerts for Southwest Florida"; }, []);
   const isMobile = useIsMobile();
   const [mobileTab, setMobileTab] = useState<"map" | "intel" | "chat">("map");
   const [features, setFeatures] = useState<FWCFeature[]>([]);
@@ -231,10 +232,10 @@ export default function Dashboard() {
   const dataTimestamp = lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
   return (
-    <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }} role="main">
+    <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
       <h1 className="sr-only">TideGuard red tide dashboard</h1>
       {/* Map fills available space */}
-      <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }}>
+      <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }} role="main" aria-label="Red tide map">
         <TideMap features={features} wind={wind} loading={fwcLoading} onCenterChange={handleMapCenter} />
 
         <TopBar

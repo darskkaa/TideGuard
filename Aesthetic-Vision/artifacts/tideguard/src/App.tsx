@@ -26,6 +26,7 @@ function NavToggle() {
     return (
       <Link
         href={other.href}
+        aria-label={`Switch to ${other.label}`}
         style={{
           position: "fixed",
           top: 10,
@@ -53,6 +54,8 @@ function NavToggle() {
   // Desktop: vertical pill with both tabs
   return (
     <div
+      role="navigation"
+      aria-label="Switch dashboard"
       style={{
         position: "fixed",
         top: "50%",

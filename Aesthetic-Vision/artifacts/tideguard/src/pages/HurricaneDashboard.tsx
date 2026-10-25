@@ -140,6 +140,7 @@ function TopBar({
 }
 
 export default function HurricaneDashboard() {
+  useEffect(() => { document.title = "StormGuard | Live Hurricane Tracker for Southwest Florida"; }, []);
   const isMobile = useIsMobile();
   const [mobileTab, setMobileTab] = useState<"map" | "intel" | "chat">("map");
   const [storms, setStorms] = useState<HurricaneStorm[]>([]);
@@ -211,10 +212,10 @@ export default function HurricaneDashboard() {
   const dataTimestamp = lastUpdated ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
   return (
-    <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }} role="main">
+    <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
       <h1 className="sr-only">StormGuard hurricane dashboard</h1>
       {/* Map */}
-      <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }}>
+      <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }} role="main" aria-label="Hurricane map">
         <HurricaneMap storms={storms} wind={wind} loading={loading} onCenterChange={handleMapCenter} />
 
         <TopBar
