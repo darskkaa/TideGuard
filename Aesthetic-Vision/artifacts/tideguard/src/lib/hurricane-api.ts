@@ -131,7 +131,7 @@ export async function fetchHurricaneStorms(): Promise<HurricaneStorm[]> {
   });
   if (!res.ok) throw new Error(`Hurricane API error: ${res.status}`);
   const data = await res.json() as NHCResponse;
-  const active = data?.activeStorms ?? [];
+  const active = (data?.activeStorms ?? []).filter((s) => (s.id ?? "").toLowerCase().startsWith("al"));
 
   return active.map((s: NHCStormRaw) => {
     const intensity = Number(s.intensity ?? 0);
