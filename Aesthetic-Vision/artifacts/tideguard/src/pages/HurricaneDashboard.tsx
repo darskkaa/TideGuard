@@ -213,9 +213,9 @@ export default function HurricaneDashboard() {
 
   return (
     <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
-      <h1 className="sr-only">StormGuard hurricane dashboard</h1>
       {/* Map */}
       <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }} role="main" aria-label="Hurricane map">
+        <h1 className="sr-only">StormGuard hurricane dashboard</h1>
         <HurricaneMap storms={storms} wind={wind} loading={loading} onCenterChange={handleMapCenter} />
 
         <TopBar

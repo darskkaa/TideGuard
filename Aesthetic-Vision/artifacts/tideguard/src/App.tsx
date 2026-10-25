@@ -24,6 +24,7 @@ function NavToggle() {
     const currentIdx = location === "/" ? 0 : 1;
     const other = tabs[1 - currentIdx];
     return (
+      <nav aria-label="Switch dashboard">
       <Link
         href={other.href}
         aria-label={`Switch to ${other.label}`}
@@ -48,6 +49,7 @@ function NavToggle() {
       >
         <other.Icon size={16} style={{ color: other.color }} />
       </Link>
+      </nav>
     );
   }
 

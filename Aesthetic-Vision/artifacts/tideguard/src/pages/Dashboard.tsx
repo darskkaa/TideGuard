@@ -233,9 +233,9 @@ export default function Dashboard() {
 
   return (
     <div className="fixed inset-0 flex overflow-hidden" style={{ background: "#060c16" }}>
-      <h1 className="sr-only">TideGuard red tide dashboard</h1>
       {/* Map fills available space */}
       <div className="flex-1 relative" style={{ marginRight: isMobile ? 0 : 380 }} role="main" aria-label="Red tide map">
+        <h1 className="sr-only">TideGuard red tide dashboard</h1>
         <TideMap features={features} wind={wind} loading={fwcLoading} onCenterChange={handleMapCenter} />
 
         <TopBar

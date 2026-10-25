@@ -118,7 +118,7 @@ function MapLegend({ isMobile }: { isMobile: boolean }) {
   return (
     <div className={`absolute ${isMobile ? "bottom-20" : "bottom-8"} left-1/2 -translate-x-1/2 z-[1000] pointer-events-none ${isMobile ? "max-w-[calc(100vw-2rem)]" : ""}`}>
       <div
-        className={`glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4 ${isMobile ? "overflow-x-auto whitespace-nowrap" : ""}`}
+        className={`glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4 ${isMobile ? "overflow-x-auto whitespace-nowrap" : ""}`} tabIndex={0} role="group" aria-label="Map legend"
         style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}
       >
         {levels.map((l) => (

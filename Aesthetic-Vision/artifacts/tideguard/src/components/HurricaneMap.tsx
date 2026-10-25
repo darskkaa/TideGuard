@@ -494,7 +494,7 @@ function CategoryLegend({ isMobile }: { isMobile: boolean }) {
   ];
   return (
     <div className={`absolute ${isMobile ? "bottom-20" : "bottom-8"} left-1/2 -translate-x-1/2 z-[1000] pointer-events-none ${isMobile ? "max-w-[calc(100vw-2rem)]" : ""}`}>
-      <div className={`glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4 ${isMobile ? "overflow-x-auto whitespace-nowrap" : ""}`} style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+      <div className={`glass-panel rounded-xl px-4 py-2.5 flex items-center gap-4 ${isMobile ? "overflow-x-auto whitespace-nowrap" : ""}`} tabIndex={0} role="group" aria-label="Map legend" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
         {cats.map((c) => (
           <div key={c.label} className="flex items-center gap-1.5">
             <div className="rounded-full" style={{ width: 8, height: 8, background: c.color, boxShadow: `0 0 8px ${c.color}88` }} />
