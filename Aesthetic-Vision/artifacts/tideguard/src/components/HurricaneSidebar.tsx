@@ -1,4 +1,5 @@
 import AIChatPanel from "./AIChatPanel";
+import ChatModal from "./ChatModal";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Wind, AlertTriangle, MessageSquare, X, ChevronRight, Newspaper, ClipboardCopy, Check, ChevronDown } from "lucide-react";
 import type { HurricaneStorm, HurricaneAlert } from "@/lib/hurricane-api";
@@ -453,44 +454,34 @@ export function HurricaneChatOverlay({
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999,
-      background: "rgba(7, 12, 22, 0.97)", display: "flex", flexDirection: "column" }}>
-      <div className="flex items-center justify-between px-4 py-2 flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#ef4444", boxShadow: "0 0 8px #ef4444" }} />
-          <span className="text-sm font-bold tracking-wide" style={{ color: "#ef4444" }}>
-            StormGuard AI
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={copyContext}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-150"
-            style={{
-              background: copied ? "rgba(34,197,94,0.12)" : "rgba(0,196,228,0.08)",
-              border: copied ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(0,196,228,0.2)",
-              color: copied ? "#22c55e" : "hsl(191 90% 46%)",
-            }}
-            title="Copy live context to paste into chat"
-          >
-            {copied ? <Check size={11} /> : <ClipboardCopy size={11} />}
-            {copied ? "Copied!" : "Copy Context"}
-          </button>
-          <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-            <X size={16} className="text-muted-foreground" />
-          </button>
-        </div>
-      </div>
-      <div className="flex-1 min-h-0 overflow-hidden" style={{ padding: 16 }}>
-        <AIChatPanel
-          mode="hurricane"
-          accent="#ef4444"
-          buildContext={buildContext}
-          questions={buildHurricaneQuestions(storms, alerts, wind).map((item) => item.q)}
-        />
-      </div>
-    </div>
+    <ChatModal
+      title="StormGuard AI"
+      accent="#ef4444"
+      onClose={onClose}
+      actions={
+        <button
+          onClick={copyContext}
+          className="flex items-center gap-1.5 px-2.5 rounded-lg text-[11px] font-semibold transition-all duration-150 cursor-pointer"
+          style={{
+            minHeight: 44,
+            background: copied ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.08)",
+            border: copied ? "1px solid rgba(34,197,94,0.3)" : "1px solid #ef444440",
+            color: copied ? "#22c55e" : "#ef4444",
+          }}
+          title="Copy live context to paste elsewhere"
+        >
+          {copied ? <Check size={12} /> : <ClipboardCopy size={12} />}
+          {copied ? "Copied" : "Copy context"}
+        </button>
+      }
+    >
+      <AIChatPanel
+        mode="hurricane"
+        accent="#ef4444"
+        buildContext={buildContext}
+        questions={buildHurricaneQuestions(storms, alerts, wind).map((item) => item.q)}
+      />
+    </ChatModal>
   );
 }
 
